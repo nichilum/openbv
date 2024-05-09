@@ -1,13 +1,24 @@
-use image::{io::Reader as ImageReader, GenericImageView, GrayImage, Luma};
+use std::path::Path;
 
-use rayon::iter::ParallelIterator;
-use std::collections::VecDeque;
+use image::{io::Reader as ImageReader, GrayImage, RgbImage};
+
+pub mod imageops;
+pub mod math;
 
 pub struct OpenBV;
 
 impl OpenBV {
-    fn open_rgb(path: &str) {}
-    fn open_gray(path: &str) -> anyhow::Result<GrayImage> {
+    fn open_rgb<P>(path: P) -> anyhow::Result<RgbImage>
+    where
+        P: AsRef<Path>,
+    {
+        Ok(ImageReader::open(path)?.decode()?.to_rgb8())
+    }
+
+    fn open_gray<P>(path: P) -> anyhow::Result<GrayImage>
+    where
+        P: AsRef<Path>,
+    {
         Ok(ImageReader::open(path)?.decode()?.to_luma8())
     }
 }
