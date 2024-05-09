@@ -1,13 +1,13 @@
-pub fn add(a: i32, b: i32) -> i32 {
-    a + b
-}
+use image::{io::Reader as ImageReader, GenericImageView, GrayImage, Luma};
 
-#[cfg(test)]
-mod tests {
-    use crate::add;
+use rayon::iter::ParallelIterator;
+use std::collections::VecDeque;
 
-    #[test]
-    fn adding() {
-        assert_eq!(add(1, 1), 2);
+pub struct OpenBV;
+
+impl OpenBV {
+    fn open_rgb(path: &str) {}
+    fn open_gray(path: &str) -> anyhow::Result<GrayImage> {
+        Ok(ImageReader::open(path)?.decode()?.to_luma8())
     }
 }
