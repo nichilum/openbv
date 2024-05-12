@@ -1,7 +1,7 @@
 use openbv::{
     imageops::{binarize::BinarizeExt, dilate::DilateExt, erode::ErodeExt},
     math::{kernel::PLUS_FILTER, thresholds::ThresholdExt},
-    *,
+    open_gray,
 };
 
 fn main() {
