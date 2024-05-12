@@ -1,8 +1,6 @@
-use openbv::math::thresholds::otsu;
+use openbv::{math::thresholds::otsu, *};
 
 fn main() {
-    println!("everything works");
-
-    println!("otsu: {:?}", otsu());
-
+    let image = open_gray("./images/Set01.jpg");
+    let otsu_thresh = image.otsu();
 }
