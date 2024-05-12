@@ -1,36 +1,37 @@
-pub fn region_label(
-    binary_img: &image::GrayImage,
-    f: fn(&mut image::GrayImage, u32, u32, u8),
-) -> image::GrayImage {
-    let mut new_img = binary_img.clone();
-    let mut label = 30;
+use std::collections::VecDeque;
 
-    for x in 0..new_img.dimensions().0 {
-        for y in 0..new_img.dimensions().1 {
-            if new_img.get_pixel(x, y).0[0] == 255 {
-                flood_fill_queue(&mut new_img, x, y, label);
-                // f(&mut new_img, x, y, label);
-                // flood_fill_stack(&mut new_img, x, y, label);
-                // flood_fill_rec(&mut new_img, x as i32, y as i32, label);
-                label = ((label as u32 + 25) % 140 + 35) as u8;
-                // return new_img; // only use for in progress images
-            }
-        }
-    }
+use image::Luma;
 
-    new_img
+use image::GrayImage;
+
+use super::binarize::BinaryImage;
+
+pub trait RegionLabelExt {
+    fn region_label(&self) -> GrayImage;
 }
 
-pub fn flood_fill_queue(binary_img: &mut image::GrayImage, x: u32, y: u32, label: u8) {
+impl RegionLabelExt for BinaryImage {
+    fn region_label(&self) -> GrayImage {
+        let mut new_img = self.0.clone();
+        let mut label = 2;
+
+        for x in 0..new_img.dimensions().0 {
+            for y in 0..new_img.dimensions().1 {
+                if new_img.get_pixel(x, y).0[0] == 255 {
+                    flood_fill_queue(&mut new_img, x, y, label);
+                    // TODO: what if img has more regions??
+                    label = label.saturating_add(1);
+                }
+            }
+        }
+
+        new_img
+    }
+}
+
+fn flood_fill_queue(binary_img: &mut image::GrayImage, x: u32, y: u32, label: u8) {
     let mut q: VecDeque<(i32, i32)> = VecDeque::from([(x as i32, y as i32)]);
-    // let mut c = 0;
     while !q.is_empty() {
-        // break for in progress images
-        // c += 1;
-        // if c == 200000 {
-        //     break;
-        // }
-        // actual flood fill
         let (cur_x, cur_y) = q.pop_front().unwrap();
         if cur_x < 0
             || cur_x >= binary_img.dimensions().0 as i32
