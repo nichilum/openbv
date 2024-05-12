@@ -22,7 +22,7 @@ pub fn generate_gaussian_kernel(size: usize, sigma: f32) -> Vec<f32> {
 }
 
 #[rustfmt::skip]
-pub const CROSS_FILTER: [(i32, i32); 5] = [
+pub const PLUS_FILTER: &[(i32, i32); 5] = &[
              (0,-1),
     (-1, 0), (0, 0), (1, 0),
              (0, 1),
