@@ -7,16 +7,16 @@ pub trait BinarizeExt {
 
 pub struct BinaryImage(pub GrayImage);
 
-impl Into<GrayImage> for BinaryImage {
-    fn into(self) -> GrayImage {
-        self.0
+impl From<BinaryImage> for GrayImage {
+    fn from(img: BinaryImage) -> GrayImage {
+        img.0
     }
 }
 
-impl Into<BinaryImage> for GrayImage {
-    // TODO: check if self is an actual binary image
-    fn into(self) -> BinaryImage {
-        BinaryImage(self)
+impl From<GrayImage> for BinaryImage {
+    // TODO: maybe check if self is an actual binary image
+    fn from(img: GrayImage) -> BinaryImage {
+        BinaryImage(img)
     }
 }
 

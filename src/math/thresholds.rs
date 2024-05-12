@@ -15,15 +15,15 @@ impl ThresholdExt for GrayImage {
         let mut c0 = 0i32;
         let mut sum0 = 0i32;
         let weight_sum = weighted_sum(&abs_hist) as i32;
-        for i in 0..256 {
-            c0 += abs_hist[i] as i32;
+        for i in abs_hist {
+            c0 += i as i32;
             // can c1 be zero??
             let c1 = img_size - c0;
             if c1 == 0 {
                 continue;
             }
 
-            sum0 += i as i32 * abs_hist[i] as i32;
+            sum0 += i as i32 * i as i32;
             let mu0 = sum0 / c0;
             let mu1 = (weight_sum - sum0) / c1;
             let var_between = c0 * c1 * (mu0 - mu1).pow(2);
@@ -39,8 +39,8 @@ impl ThresholdExt for GrayImage {
 
 fn weighted_sum(hist: &[usize]) -> usize {
     let mut sum = 0;
-    for i in 0..hist.len() {
-        sum += i * hist[i];
+    for (i, val) in hist.iter().enumerate() {
+        sum += i * val;
     }
     sum
 }
