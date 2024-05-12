@@ -1,4 +1,4 @@
-use image::GrayImage;
+use image::{GrayImage, ImageResult};
 use rayon::iter::ParallelIterator;
 
 pub trait BinarizeExt {
@@ -6,6 +6,17 @@ pub trait BinarizeExt {
 }
 
 pub struct BinaryImage(pub GrayImage);
+
+impl BinaryImage {
+    pub fn save<P>(&self, path: P) -> ImageResult<()>
+    where
+        P: AsRef<std::path::Path>,
+    {
+        self.0.save(path)?;
+        Ok(())
+    }
+
+}
 
 impl From<BinaryImage> for GrayImage {
     fn from(img: BinaryImage) -> GrayImage {
