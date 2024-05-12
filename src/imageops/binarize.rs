@@ -21,6 +21,7 @@ impl Into<BinaryImage> for GrayImage {
 }
 
 impl BinarizeExt for GrayImage {
+    /// returns a new binary image
     fn binarize(&self, threshold: u8) -> BinaryImage {
         let mut new_img = self.clone();
 
