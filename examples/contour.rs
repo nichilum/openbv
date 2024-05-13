@@ -1,5 +1,5 @@
 use openbv::{
-    imageops::{binarize::BinarizeExt, dilate::DilateExt, erode::ErodeExt},
+    imageops::{binarize::BinarizeExt, contour::ContourExt, dilate::DilateExt, erode::ErodeExt},
     math::{kernel::PLUS_FILTER, thresholds::ThresholdExt},
     open_gray,
 };
@@ -12,4 +12,7 @@ fn main() {
 
     let eroded_img = binary_img.erode(PLUS_FILTER, 2);
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 2);
+
+    let contours = dilated_img.find_contours();
+    let contour_img = binary_img.draw_contours(contours);
 }

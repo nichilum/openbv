@@ -1,5 +1,7 @@
-use image::{GrayImage, ImageResult};
+use image::{GrayImage, ImageResult, RgbImage};
 use rayon::iter::ParallelIterator;
+
+use super::contour::Contour;
 
 pub trait BinarizeExt {
     fn binarize(&self, threshold: u8) -> BinaryImage;
@@ -16,6 +18,9 @@ impl BinaryImage {
         Ok(())
     }
 
+    pub fn draw_contours(&self, contours: Vec<Contour>) -> RgbImage {
+        todo!()
+    }
 }
 
 impl From<BinaryImage> for GrayImage {
