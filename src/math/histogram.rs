@@ -62,3 +62,9 @@ impl NormalizedHistogram {
         )
     }
 }
+
+impl CumulatedHistogram {
+    fn normalize(&self) -> CumulatedNormalizedHistogram {
+        todo!()
+    }
+}
