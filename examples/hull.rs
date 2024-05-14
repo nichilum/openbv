@@ -14,7 +14,8 @@ fn main() {
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 2);
 
     let contours = dilated_img.find_contours();
-    let hulls = contours.0.iter().map(|c| graham_scan(&c.points)).map(|c| approx_hull(&c, 0.5)).collect::<Vec<_>>();
+    let hulls = contours.0.iter().map(|c| graham_scan(&c.points)).collect::<Vec<_>>();
+    // let hulls = contours.0.iter().map(|c| graham_scan(&c.points)).map(|c| approx_hull(&c, 400.)).collect::<Vec<_>>();
     let hull_img = dilated_img.draw_hulls(hulls);
     hull_img.save("test.png").unwrap();
 }
