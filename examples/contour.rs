@@ -15,4 +15,5 @@ fn main() {
 
     let contours = dilated_img.find_contours();
     let contour_img = binary_img.draw_contours(contours);
+    contour_img.save("test.png").unwrap();
 }

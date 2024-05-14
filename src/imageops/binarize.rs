@@ -1,4 +1,6 @@
-use image::{GrayImage, ImageResult, RgbImage};
+use std::io::Read;
+
+use image::{DynamicImage, GrayImage, ImageResult, RgbImage};
 use rayon::iter::ParallelIterator;
 
 use super::contour::Contour;
@@ -19,7 +21,15 @@ impl BinaryImage {
     }
 
     pub fn draw_contours(&self, contours: Vec<Contour>) -> RgbImage {
-        todo!()
+        let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
+
+        for contour in contours {
+            for (x, y) in contour.points {
+                out_img.put_pixel(x, y, image::Rgb([255, 0, 0]));
+            }
+        }
+
+        out_img
     }
 }
 
