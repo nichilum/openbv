@@ -13,7 +13,10 @@ fn main() {
     let eroded_img = binary_img.erode(PLUS_FILTER, 2);
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 2);
 
-    let (inner_contours, outer_contours) = dilated_img.find_contours();
+    let (mut inner_contours, outer_contours) = dilated_img.find_contours();
+
+    // we should clean up small contours
+
     let contour_img = dilated_img.draw_contours(inner_contours, outer_contours);
     contour_img.save("test.png").unwrap();
 }
