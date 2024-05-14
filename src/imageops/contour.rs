@@ -1,9 +1,11 @@
-use image::{DynamicImage, GrayImage, RgbaImage};
+use image::{DynamicImage, GenericImageView, GrayImage, RgbaImage};
 
 use super::binarize::BinaryImage;
 
 pub struct Contour {
     pub points: Vec<(u32, u32)>,
+    label: u8,
+    area: u32,
 }
 
 pub struct Moments;
@@ -81,7 +83,21 @@ impl ContourExt for BinaryImage {
             }
         }
 
-        output_img.save("output.png").unwrap();
+        // count area, slow but should work:
+        outer_contours.iter_mut().for_each(|contour| {
+            output_img.pixels().for_each(|x| {
+                if x[0] == contour.label {
+                    contour.area += 1;
+                }
+            });
+        });
+        inner_contours.iter_mut().for_each(|contour| {
+            output_img.pixels().for_each(|x| {
+                if x[0] == contour.label {
+                    contour.area += 1;
+                }
+            });
+        });
 
         (inner_contours, outer_contours)
     }
@@ -96,10 +112,11 @@ impl ContourExt for BinaryImage {
         outer_contours: &'a mut Vec<Contour>,
     ) {
         if *label != 0 {
+            let cur_pixel_alpha = output_img.get_pixel(x, y)[3];
             output_img.put_pixel(
                 x,
                 y,
-                image::Rgba([*label as u8, *label as u8, *label as u8, 0]),
+                image::Rgba([*label as u8, *label as u8, *label as u8, cur_pixel_alpha]),
             )
         } else {
             *label = output_img.get_pixel(x, y)[0] as u32;
@@ -128,7 +145,9 @@ impl ContourExt for BinaryImage {
         inner_contours: &mut Vec<Contour>,
     ) {
         if *label != 0 {
-            if output_img.get_pixel(x, y)[0] == 0 && output_img.get_pixel(x, y)[3] != 255 {
+            if output_img.get_pixel(x, y)[0] == 0
+                && output_img.get_pixel(x.saturating_sub(1), y)[3] != 255
+            {
                 let contour = self.trace_contour(output_img, x.saturating_sub(1), y, *label, true);
                 inner_contours.push(contour);
             }
@@ -150,6 +169,8 @@ impl ContourExt for BinaryImage {
         } else {
             return Contour {
                 points: vec![start],
+                label: label as u8,
+                area: 0,
             };
         };
 
@@ -176,7 +197,11 @@ impl ContourExt for BinaryImage {
             }
         }
 
-        Contour { points }
+        Contour {
+            points,
+            label: label as u8,
+            area: 0,
+        }
     }
 
     fn tracer(
@@ -253,11 +278,12 @@ impl Contour {
     pub fn approx_poly_db(&self) {
         todo!()
     }
-    pub fn contour_area(&self) {
-        todo!()
+    pub fn contour_area(&self) -> u32 {
+        self.area
     }
-    pub fn arc_length(&self) {
-        todo!()
+    pub fn arc_length(&self) -> usize {
+        // start points is in list twice
+        self.points.len() - 1
     }
     pub fn moments(&self) -> Moments {
         todo!()
