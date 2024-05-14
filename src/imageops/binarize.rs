@@ -20,14 +20,24 @@ impl BinaryImage {
         Ok(())
     }
 
-    pub fn draw_contours(&self, contours: Vec<Contour>) -> RgbImage {
+    pub fn draw_contours(
+        &self,
+        inner_contours: Vec<Contour>,
+        outer_contours: Vec<Contour>,
+    ) -> RgbImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
 
-        for contour in contours {
+        for contour in inner_contours {
             for (x, y) in contour.points {
                 out_img.put_pixel(x, y, image::Rgb([255, 0, 0]));
             }
         }
+
+        // for contour in outer_contours {
+        //     for (x, y) in contour.points {
+        //         out_img.put_pixel(x, y, image::Rgb([0, 0, 255]));
+        //     }
+        // }
 
         out_img
     }
