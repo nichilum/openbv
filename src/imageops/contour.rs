@@ -1,4 +1,4 @@
-use image::{GenericImageView, GrayImage};
+use image::GrayImage;
 
 use super::binarize::BinaryImage;
 
@@ -16,8 +16,8 @@ pub trait ContourExt {
         output_img: &mut GrayImage,
         x: u32,
         y: u32,
-        label: &mut u8,
-        r: &mut u8,
+        label: &mut u32,
+        r: &mut u32,
         outer_contours: &mut Vec<Contour>,
     );
     fn handle_bg_pixel(
@@ -25,7 +25,7 @@ pub trait ContourExt {
         output_img: &mut GrayImage,
         x: u32,
         y: u32,
-        label: &mut u8,
+        label: &mut u32,
         inner_contours: &mut Vec<Contour>,
     );
     fn tracer(
@@ -40,14 +40,14 @@ pub trait ContourExt {
 
 impl ContourExt for BinaryImage {
     fn find_contours(&self) -> Vec<Contour> {
-        let img = &self.0;
+        let img: &image::ImageBuffer<image::Luma<u8>, Vec<u8>> = &self.0;
         let mut output_img = self.0.clone();
         let mut outer_contours = vec![];
-        // let mut inner_contours = vec![];
+        let mut inner_contours = vec![];
 
         let mut r = 1;
         for y in 0..img.dimensions().1 {
-            let mut label = 0;
+            let mut label = 50;
             for x in 0..img.dimensions().0 {
                 if img.get_pixel(x, y)[0] == 255 {
                     self.handle_fg_pixel(
@@ -58,16 +58,13 @@ impl ContourExt for BinaryImage {
                         &mut r,
                         &mut outer_contours,
                     );
-                    println!("x: {}, y: {}, label: {}", x, y, label);
-                    if label == 255 {
-                        return outer_contours;
-                    }
+                } else {
+                    self.handle_bg_pixel(&mut output_img, x, y, &mut label, &mut inner_contours);
                 }
-                // } else {
-                //     self.handle_bg_pixel(&mut output_img, x, y, &mut label, &mut inner_contours);
-                // }
             }
         }
+
+        output_img.save("output.png").unwrap();
 
         outer_contours
     }
@@ -77,20 +74,21 @@ impl ContourExt for BinaryImage {
         output_img: &mut GrayImage,
         x: u32,
         y: u32,
-        label: &'a mut u8,
-        r: &'a mut u8,
+        label: &'a mut u32,
+        r: &'a mut u32,
         outer_contours: &'a mut Vec<Contour>,
     ) {
         if *label != 0 {
-            output_img.put_pixel(x, y, image::Luma([*label]))
+            output_img.put_pixel(x, y, image::Luma([*label as u8]))
         } else {
-            *label = output_img.get_pixel(x, y)[0];
+            *label = output_img.get_pixel(x, y)[0] as u32;
             if *label == 0 {
-                *r += 1;
+                // *r = (*r + 1) % 254 + 1;
+                *r = *r + 1;
                 *label = *r;
                 let contour = self.trace_contour(x, y, false);
                 outer_contours.push(contour);
-                output_img.put_pixel(x, y, image::Luma([*label]))
+                output_img.put_pixel(x, y, image::Luma([*label as u8]))
             }
         }
     }
@@ -100,12 +98,12 @@ impl ContourExt for BinaryImage {
         output_img: &mut GrayImage,
         x: u32,
         y: u32,
-        label: &mut u8,
+        label: &mut u32,
         inner_contours: &mut Vec<Contour>,
     ) {
         if *label != 0 {
             if output_img.get_pixel(x, y)[0] == 0 {
-                let contour = self.trace_contour(x - 1, y, true);
+                let contour = self.trace_contour(x.saturating_sub(1), y, true);
                 inner_contours.push(contour);
             }
             *label = 0;
