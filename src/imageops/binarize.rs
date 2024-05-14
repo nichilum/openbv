@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use image::{DynamicImage, GrayImage, ImageResult, RgbImage};
 use rayon::iter::ParallelIterator;
 

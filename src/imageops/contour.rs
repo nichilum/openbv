@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImageView, GrayImage, RgbaImage};
+use image::{DynamicImage, RgbaImage};
 
 use super::binarize::BinaryImage;
 
