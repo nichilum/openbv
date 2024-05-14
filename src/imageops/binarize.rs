@@ -31,6 +31,16 @@ impl BinaryImage {
 
         out_img
     }
+
+    pub fn draw_hull(&self, hull: Vec<(u32, u32)>) -> RgbImage {
+        let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
+
+        for (x, y) in hull {
+            out_img.put_pixel(x, y, image::Rgb([0, 255, 0]));
+        }
+
+        out_img
+    }
 }
 
 impl From<BinaryImage> for GrayImage {
