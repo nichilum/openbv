@@ -83,22 +83,6 @@ impl ContourExt for BinaryImage {
             }
         }
 
-        // count area, slow but should work:
-        outer_contours.iter_mut().for_each(|contour| {
-            output_img.pixels().for_each(|x| {
-                if x[0] == contour.label {
-                    contour.area += 1;
-                }
-            });
-        });
-        inner_contours.iter_mut().for_each(|contour| {
-            output_img.pixels().for_each(|x| {
-                if x[0] == contour.label {
-                    contour.area += 1;
-                }
-            });
-        });
-
         (inner_contours, outer_contours)
     }
 
