@@ -42,6 +42,10 @@ impl ContourExt for BinaryImage {
     fn find_contours(&self) -> Vec<Contour> {
         let img: &image::ImageBuffer<image::Luma<u8>, Vec<u8>> = &self.0;
         let mut output_img = self.0.clone();
+        output_img.pixels_mut().for_each(|x| {
+            *x = image::Luma([0]);
+        });
+        
         let mut outer_contours = vec![];
         let mut inner_contours = vec![];
 
