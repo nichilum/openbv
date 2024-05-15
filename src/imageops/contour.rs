@@ -4,6 +4,7 @@ use crate::math::hull::{approx_hull, graham_scan};
 
 use super::binarize::BinaryImage;
 
+#[derive(Debug)]
 pub struct Contour {
     pub points: Vec<(u32, u32)>,
     pub label: u8,
@@ -36,6 +37,7 @@ impl Contour {
     }
 }
 
+#[derive(Debug)]
 pub struct ConvexHull(pub Vec<(u32, u32)>);
 
 impl ConvexHull {
@@ -170,7 +172,17 @@ impl ContourExt for BinaryImage {
                 && output_img.get_pixel(x.saturating_sub(1), y)[3] != 255
             {
                 let contour = self.trace_contour(output_img, x.saturating_sub(1), y, *label, true);
-                inner_contours.push(contour);
+                // inner contour is counter clockwise
+                // for the convex hull clockwise rotation is needed
+                let rev_points = contour
+                    .points
+                    .into_iter()
+                    .rev()
+                    .collect::<Vec<(u32, u32)>>();
+                inner_contours.push(Contour {
+                    points: rev_points,
+                    label: *label as u8,
+                });
             }
             *label = 0;
         }

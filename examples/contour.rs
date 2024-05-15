@@ -16,8 +16,8 @@ fn main() {
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
 
     // only keep contours with area > 100
-    inner_contours.retain(|c| c.contour_area() > 100);
-    outer_contours.retain(|c| c.contour_area() > 100);
+    inner_contours.retain(|c| c.contour_area() > 10);
+    outer_contours.retain(|c| c.contour_area() > 10);
 
     let contour_img = dilated_img.draw_contours(inner_contours, outer_contours);
     contour_img.save("test.png").unwrap();
