@@ -5,7 +5,6 @@ use super::binarize::BinaryImage;
 pub struct Contour {
     pub points: Vec<(u32, u32)>,
     label: u8,
-    area: u32,
 }
 
 impl Contour {
@@ -186,7 +185,6 @@ impl ContourExt for BinaryImage {
             return Contour {
                 points: vec![start],
                 label: label as u8,
-                area: 0,
             };
         };
 
@@ -216,7 +214,6 @@ impl ContourExt for BinaryImage {
         Contour {
             points,
             label: label as u8,
-            area: 0,
         }
     }
 
