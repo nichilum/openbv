@@ -13,5 +13,4 @@ fn main() {
 
     let cumulated_normalized_histogram = normalized_histogram.cumulate();
     println!("{:?}", cumulated_normalized_histogram);
-
 }

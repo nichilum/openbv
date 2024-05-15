@@ -39,10 +39,9 @@ impl Contour {
 pub struct ConvexHull(pub Vec<(u32, u32)>);
 
 impl ConvexHull {
-    pub fn approx_db(&self) {
-        let epsilon = 0.1;
+    pub fn approx_db(&self, epsilon: f32) -> ConvexHull {
         let hull = approx_hull(&self.0, epsilon);
-        ConvexHull(hull);
+        ConvexHull(hull)
     }
 }
 
