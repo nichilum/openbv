@@ -47,8 +47,8 @@ pub fn approx_hull(points: &[(u32, u32)], threshold: f32) -> Vec<(u32, u32)> {
     let mut index_max = -1;
     let line = (points[0], points[points.len() - 1]);
 
-    for i in 2..points.len() {
-        let d = distance(&points[i], &line);
+    for (i, point) in points.iter().enumerate().skip(2) {
+        let d = distance(point, &line);
         if d > d_max {
             index_max = i as i32;
             d_max = d;

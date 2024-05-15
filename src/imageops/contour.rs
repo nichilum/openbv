@@ -4,7 +4,7 @@ use super::binarize::BinaryImage;
 
 pub struct Contour {
     pub points: Vec<(u32, u32)>,
-    label: u8,
+    pub label: u8,
 }
 
 impl Contour {
@@ -22,7 +22,7 @@ impl Contour {
             let p2 = self.points[(i + 1) % self.points.len()];
             area += p1.0 as i32 * p2.1 as i32 - p1.1 as i32 * p2.0 as i32;
         }
-        (area / 2).abs() as u32
+        (area / 2).unsigned_abs()
     }
     pub fn arc_length(&self) -> usize {
         // start points is in list twice
@@ -82,11 +82,6 @@ impl ContourExt for BinaryImage {
     /// (inner, outer)
     fn find_contours(&self) -> (Vec<Contour>, Vec<Contour>) {
         let img: &image::ImageBuffer<image::Luma<u8>, Vec<u8>> = &self.0;
-        // let mut output_img = self.0.clone();
-        // output_img.pixels_mut().for_each(|x| {
-        //     *x = image::Luma([0]);
-        // });
-
         let mut output_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgba8();
         output_img.pixels_mut().for_each(|x| {
             *x = image::Rgba([0, 0, 0, 0]);
@@ -136,10 +131,9 @@ impl ContourExt for BinaryImage {
         } else {
             *label = output_img.get_pixel(x, y)[0] as u32;
             if *label == 0 {
-                // *r = (*r + 1) % 254 + 1;
-                *r = *r + 1;
+                *r += 1;
                 *label = *r;
-                let contour = self.trace_contour(output_img, x, y, *label, false); //label to connect contour to labeled image
+                let contour = self.trace_contour(output_img, x, y, *label, false);
                 outer_contours.push(contour);
                 // maybe doppelt gemoppelt
                 output_img.put_pixel(
@@ -271,10 +265,9 @@ impl ContourExt for BinaryImage {
                 && ny >= 0
                 && nx < img.dimensions().0 as i32
                 && ny < img.dimensions().1 as i32
+                && img.get_pixel(nx as u32, ny as u32)[0] == 255
             {
-                if img.get_pixel(nx as u32, ny as u32)[0] == 255 {
-                    return Some((nx as u32, ny as u32));
-                }
+                return Some((nx as u32, ny as u32));
             }
 
             index = (index + 1) % 8;
