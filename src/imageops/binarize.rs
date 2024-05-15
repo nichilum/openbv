@@ -26,14 +26,12 @@ impl BinaryImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
 
         for contour in inner_contours {
-            println!("{}", contour.arc_length());
             for (x, y) in contour.points {
                 out_img.put_pixel(x, y, image::Rgb([255, 0, 0]));
             }
         }
 
         for contour in outer_contours {
-            println!("{}", contour.contour_area());
             for (x, y) in contour.points {
                 out_img.put_pixel(x, y, image::Rgb([0, 0, 255]));
             }

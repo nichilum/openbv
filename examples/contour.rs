@@ -17,6 +17,9 @@ fn main() {
 
     // we should clean up small contours
 
+    let area = inner_contours[0].contour_area();
+    println!("Area: {}", area);
+
     let contour_img = dilated_img.draw_contours(inner_contours, outer_contours);
     contour_img.save("test.png").unwrap();
 }

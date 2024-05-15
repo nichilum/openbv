@@ -8,7 +8,39 @@ pub struct Contour {
     area: u32,
 }
 
+impl Contour {
+    pub fn convex_hull(&self) {
+        todo!()
+    }
+    pub fn approx_poly_db(&self) {
+        todo!()
+    }
+    pub fn contour_area(&self) -> u32 {
+        // from: https://github.com/opencv/opencv/blob/76d9f7aaeb8c9ba8aea80bdb155b60c78da1e309/modules/imgproc/src/shapedescr.cpp#L308
+        let mut area = 0;
+        for i in 0..self.points.len() {
+            let p1 = self.points[i];
+            let p2 = self.points[(i + 1) % self.points.len()];
+            area += p1.0 as i32 * p2.1 as i32 - p1.1 as i32 * p2.0 as i32;
+        }
+        (area / 2).abs() as u32
+    }
+    pub fn arc_length(&self) -> usize {
+        // start points is in list twice
+        self.points.len() - 1
+    }
+    pub fn moments(&self) -> Moments {
+        todo!()
+    }
+}
+
 pub struct Moments;
+
+impl Moments {
+    pub fn hu_moments(&self) {
+        todo!()
+    }
+}
 
 pub trait ContourExt {
     fn find_contours(&self) -> (Vec<Contour>, Vec<Contour>);
@@ -252,30 +284,5 @@ impl ContourExt for BinaryImage {
         }
 
         None
-    }
-}
-
-impl Contour {
-    pub fn convex_hull(&self) {
-        todo!()
-    }
-    pub fn approx_poly_db(&self) {
-        todo!()
-    }
-    pub fn contour_area(&self) -> u32 {
-        self.area
-    }
-    pub fn arc_length(&self) -> usize {
-        // start points is in list twice
-        self.points.len() - 1
-    }
-    pub fn moments(&self) -> Moments {
-        todo!()
-    }
-}
-
-impl Moments {
-    pub fn hu_moments(&self) {
-        todo!()
     }
 }
