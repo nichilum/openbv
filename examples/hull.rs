@@ -16,11 +16,14 @@ fn main() {
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
     inner_contours.append(&mut outer_contours);
 
-    // let hulls = inner_contours.iter().map(|c| c.convex_hull()).collect::<Vec<_>>();
     let hulls = inner_contours
         .iter()
-        .map(|c| c.convex_hull().approx_db(0.1))
+        .map(|c| c.convex_hull())
         .collect::<Vec<_>>();
+    // let hulls = inner_contours
+    //     .iter()
+    //     .map(|c| c.convex_hull().approx_db(0.1))
+    //     .collect::<Vec<_>>();
     let hull_img = dilated_img.draw_hulls(hulls);
     hull_img.save("test.png").unwrap();
 }
