@@ -71,14 +71,11 @@ pub fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
 
 /// perpendicular distance from a point to a line
 fn distance(point: &(u32, u32), line: &((u32, u32), (u32, u32))) -> f32 {
-    let (x1, y1) = line.0;
-    let (x2, y2) = line.1;
-    let (x0, y0) = *point;
+    let (x1, y1) = (line.0 .0 as f32, line.0 .1 as f32);
+    let (x2, y2) = (line.1 .0 as f32, line.1 .1 as f32);
+    let (x0, y0) = (point.0 as f32, point.1 as f32);
 
-    let num = ((y2 as i32 - y1 as i32) * x0 as i32 - (x2 as i32 - x1 as i32) * y0 as i32
-        + x2 as i32 * y1 as i32
-        - y2 as i32 * x1 as i32)
-        .abs() as f32;
+    let num = ((x2 - x1) * (y0 - y1) - (x0 - x1) * (y2 - y1)).abs();
     let den = (((y2 as i32 - y1 as i32).pow(2) + (x2 as i32 - x1 as i32).pow(2)) as f32).sqrt();
 
     num / den

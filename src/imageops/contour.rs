@@ -11,9 +11,14 @@ pub struct Contour {
 }
 
 impl Contour {
-    pub fn convex_hull(&self) -> ConvexHull {
+    pub fn convex_hull(&self) -> Hull {
         let hull = graham_scan(&self.points);
-        ConvexHull(hull)
+        Hull(hull)
+    }
+
+    pub fn poly_hull(&self, epsilon: f32) -> Hull {
+        let hull = approx_hull(&self.points, epsilon);
+        Hull(hull)
     }
 
     pub fn contour_area(&self) -> u32 {
@@ -28,8 +33,7 @@ impl Contour {
     }
 
     pub fn arc_length(&self) -> usize {
-        // start points is in list twice
-        self.points.len() - 1
+        self.points.len()
     }
 
     pub fn moments(&self) -> Moments {
@@ -38,14 +42,7 @@ impl Contour {
 }
 
 #[derive(Debug)]
-pub struct ConvexHull(pub Vec<(u32, u32)>);
-
-impl ConvexHull {
-    pub fn approx_db(&self, epsilon: f32) -> ConvexHull {
-        let hull = approx_hull(&self.0, epsilon);
-        ConvexHull(hull)
-    }
-}
+pub struct Hull(pub Vec<(u32, u32)>);
 
 pub struct Moments;
 
@@ -212,7 +209,8 @@ impl ContourExt for BinaryImage {
             let prev = points[points.len() - 2];
             let next = self.tracer(cur.0, cur.1, prev, false, internal);
             if let Some((x, y)) = next {
-                if cur == start {
+                // use next so start point isn't twice in vector
+                if next.unwrap() == start {
                     break;
                 }
 

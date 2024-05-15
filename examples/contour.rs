@@ -5,7 +5,7 @@ use openbv::{
 };
 
 fn main() {
-    let image = open_gray("./images/Set03.jpg").unwrap();
+    let image = open_gray("./images/test.png").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -16,6 +16,7 @@ fn main() {
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
 
     // only keep contours with area > 100
+    // maybe clean up always in find_contours()?
     inner_contours.retain(|c| c.contour_area() > 10);
     outer_contours.retain(|c| c.contour_area() > 10);
 

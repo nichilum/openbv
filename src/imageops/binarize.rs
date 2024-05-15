@@ -1,7 +1,7 @@
 use image::{DynamicImage, GrayImage, ImageResult, RgbImage};
 use rayon::iter::ParallelIterator;
 
-use super::contour::{Contour, ConvexHull};
+use super::contour::{Contour, Hull};
 
 pub trait BinarizeExt {
     fn binarize(&self, threshold: u8) -> BinaryImage;
@@ -40,7 +40,7 @@ impl BinaryImage {
         out_img
     }
 
-    pub fn draw_hulls(&self, hulls: Vec<ConvexHull>) -> RgbImage {
+    pub fn draw_hulls(&self, hulls: Vec<Hull>) -> RgbImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
 
         for hull in hulls {
