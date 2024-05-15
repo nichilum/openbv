@@ -1,8 +1,12 @@
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
+#[derive(Debug)]
 pub struct Histogram(pub Vec<usize>);
+#[derive(Debug)]
 pub struct NormalizedHistogram(pub Vec<f64>);
+#[derive(Debug)]
 pub struct CumulatedHistogram(pub Vec<usize>);
+#[derive(Debug)]
 pub struct CumulatedNormalizedHistogram(pub Vec<f64>);
 
 pub trait HistogramFromImageExt {
@@ -26,7 +30,7 @@ impl HistogramFromImageExt for image::GrayImage {
 }
 
 impl Histogram {
-    fn normalize(&self) -> NormalizedHistogram {
+    pub fn normalize(&self) -> NormalizedHistogram {
         let res = self.0.iter().sum::<usize>();
         NormalizedHistogram(
             self.0
@@ -36,7 +40,7 @@ impl Histogram {
         )
     }
 
-    fn cumulate(&self) -> CumulatedHistogram {
+    pub fn cumulate(&self) -> CumulatedHistogram {
         CumulatedHistogram(
             self.0
                 .iter()
@@ -50,7 +54,7 @@ impl Histogram {
 }
 
 impl NormalizedHistogram {
-    fn cumulate(&self) -> CumulatedNormalizedHistogram {
+    pub fn cumulate(&self) -> CumulatedNormalizedHistogram {
         CumulatedNormalizedHistogram(
             self.0
                 .iter()
@@ -64,7 +68,7 @@ impl NormalizedHistogram {
 }
 
 impl CumulatedHistogram {
-    fn normalize(&self) -> CumulatedNormalizedHistogram {
+    pub fn normalize(&self) -> CumulatedNormalizedHistogram {
         todo!()
     }
 }
