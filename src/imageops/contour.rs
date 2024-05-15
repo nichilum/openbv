@@ -1,5 +1,7 @@
 use image::{DynamicImage, RgbaImage};
 
+use crate::math::hull::{approx_hull, graham_scan};
+
 use super::binarize::BinaryImage;
 
 pub struct Contour {
@@ -8,12 +10,11 @@ pub struct Contour {
 }
 
 impl Contour {
-    pub fn convex_hull(&self) {
-        todo!()
+    pub fn convex_hull(&self) -> ConvexHull {
+        let hull = graham_scan(&self.points);
+        ConvexHull(hull)
     }
-    pub fn approx_poly_db(&self) {
-        todo!()
-    }
+
     pub fn contour_area(&self) -> u32 {
         // from: https://github.com/opencv/opencv/blob/76d9f7aaeb8c9ba8aea80bdb155b60c78da1e309/modules/imgproc/src/shapedescr.cpp#L308
         let mut area = 0;
@@ -24,12 +25,24 @@ impl Contour {
         }
         (area / 2).unsigned_abs()
     }
+
     pub fn arc_length(&self) -> usize {
         // start points is in list twice
         self.points.len() - 1
     }
+
     pub fn moments(&self) -> Moments {
         todo!()
+    }
+}
+
+pub struct ConvexHull(pub Vec<(u32, u32)>);
+
+impl ConvexHull {
+    pub fn approx_db(&self) {
+        let epsilon = 0.1;
+        let hull = approx_hull(&self.0, epsilon);
+        ConvexHull(hull);
     }
 }
 

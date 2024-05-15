@@ -42,7 +42,7 @@ fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> i32 {
     2
 }
 
-pub fn approx_hull(points: &[(u32, u32)], threshold: f32) -> Vec<(u32, u32)> {
+pub fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
     let mut d_max = 0.;
     let mut index_max = -1;
     let line = (points[0], points[points.len() - 1]);
@@ -55,9 +55,9 @@ pub fn approx_hull(points: &[(u32, u32)], threshold: f32) -> Vec<(u32, u32)> {
         }
     }
 
-    if d_max > threshold {
-        let left = approx_hull(&points[..index_max as usize], threshold);
-        let right = approx_hull(&points[index_max as usize..], threshold);
+    if d_max > epsilon {
+        let left = approx_hull(&points[..index_max as usize], epsilon);
+        let right = approx_hull(&points[index_max as usize..], epsilon);
 
         let mut hull = Vec::new();
         hull.extend(left);
