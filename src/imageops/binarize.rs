@@ -1,4 +1,5 @@
-use image::{DynamicImage, GrayImage, ImageResult, RgbImage};
+use image::{DynamicImage, GrayImage, ImageResult, Rgb, RgbImage};
+use rand::Rng;
 use rayon::iter::ParallelIterator;
 
 use super::contour::{Contour, Hull};
@@ -18,23 +19,21 @@ impl BinaryImage {
         Ok(())
     }
 
-    pub fn draw_contours(
-        &self,
-        inner_contours: Vec<Contour>,
-        outer_contours: Vec<Contour>,
-    ) -> RgbImage {
+    // draws contour and their respective center points
+    pub fn draw_contours(&self, contours: Vec<Contour>) -> RgbImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
+        let mut rng = rand::thread_rng();
 
-        for contour in inner_contours {
-            for (x, y) in contour.points {
-                out_img.put_pixel(x, y, image::Rgb([255, 0, 0]));
+        for contour in contours {
+            let r = rng.gen_range(0..255);
+            let g = rng.gen_range(0..255);
+            let b = rng.gen_range(0..255);
+            for (x, y) in &contour.points {
+                out_img.put_pixel(*x, *y, image::Rgb([r, g, b]));
             }
-        }
 
-        for contour in outer_contours {
-            for (x, y) in contour.points {
-                out_img.put_pixel(x, y, image::Rgb([0, 0, 255]));
-            }
+            let (c_x, c_y) = contour.get_center();
+            out_img.put_pixel(c_x, c_y, image::Rgb([r, g, b]));
         }
 
         out_img
@@ -43,19 +42,27 @@ impl BinaryImage {
     pub fn draw_hulls(&self, hulls: Vec<Hull>) -> RgbImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
 
+        let mut rng = rand::thread_rng();
         for hull in hulls {
-            for i in 0..hull.0.len() {
-                let (x1, y1) = hull.0[i];
-                let (x2, y2) = hull.0[(i + 1) % hull.0.len()];
-                draw_line(&mut out_img, x1, y1, x2, y2);
+            let r = rng.gen_range(0..255);
+            let g = rng.gen_range(0..255);
+            let b = rng.gen_range(0..255);
+
+            for i in 0..hull.points.len() {
+                let (x1, y1) = hull.points[i];
+                let (x2, y2) = hull.points[(i + 1) % hull.points.len()];
+                draw_line(&mut out_img, x1, y1, x2, y2, image::Rgb([r, g, b]));
             }
+
+            let (c_x, c_y) = hull.get_center();
+            out_img.put_pixel(c_x, c_y, image::Rgb([r, g, b]));
         }
 
         out_img
     }
 }
 
-pub fn draw_line(img: &mut RgbImage, x1: u32, y1: u32, x2: u32, y2: u32) {
+pub fn draw_line(img: &mut RgbImage, x1: u32, y1: u32, x2: u32, y2: u32, pixel: Rgb<u8>) {
     let mut x1 = x1 as i32;
     let mut y1 = y1 as i32;
     let x2 = x2 as i32;
@@ -68,7 +75,7 @@ pub fn draw_line(img: &mut RgbImage, x1: u32, y1: u32, x2: u32, y2: u32) {
     let mut err = dx - dy;
 
     loop {
-        img.put_pixel(x1 as u32, y1 as u32, image::Rgb([0, 255, 0]));
+        img.put_pixel(x1 as u32, y1 as u32, pixel);
 
         if x1 == x2 && y1 == y2 {
             break;

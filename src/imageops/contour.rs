@@ -1,8 +1,7 @@
 use image::{DynamicImage, RgbaImage};
 
-use crate::math::hull::{approx_hull, graham_scan};
-
 use super::binarize::BinaryImage;
+use crate::math::hull::{approx_hull, graham_scan};
 
 #[derive(Debug)]
 pub struct Contour {
@@ -10,15 +9,22 @@ pub struct Contour {
     pub label: u8,
 }
 
+#[derive(Debug)]
+pub struct Hull {
+    pub points: Vec<(u32, u32)>,
+}
+
+pub struct Moments;
+
 impl Contour {
     pub fn convex_hull(&self) -> Hull {
         let hull = graham_scan(&self.points);
-        Hull(hull)
+        Hull { points: hull }
     }
 
     pub fn poly_hull(&self, epsilon: f32) -> Hull {
         let hull = approx_hull(&self.points, epsilon);
-        Hull(hull)
+        Hull { points: hull }
     }
 
     pub fn contour_area(&self) -> u32 {
@@ -36,19 +42,45 @@ impl Contour {
         self.points.len()
     }
 
+    pub fn get_center(&self) -> (u32, u32) {
+        let mut sum_x = 0;
+        let mut sum_y = 0;
+        for (x, y) in &self.points {
+            sum_x += x;
+            sum_y += y;
+        }
+
+        (
+            sum_x / self.points.len() as u32,
+            sum_y / self.points.len() as u32,
+        )
+    }
+
     pub fn moments(&self) -> Moments {
         todo!()
     }
 }
 
-#[derive(Debug)]
-pub struct Hull(pub Vec<(u32, u32)>);
-
-pub struct Moments;
-
 impl Moments {
     pub fn hu_moments(&self) {
         todo!()
+    }
+}
+
+impl Hull {
+    // works better for poly hulls than convex hulls
+    pub fn get_center(&self) -> (u32, u32) {
+        let mut sum_x = 0;
+        let mut sum_y = 0;
+        for (x, y) in &self.points {
+            sum_x += x;
+            sum_y += y;
+        }
+
+        (
+            sum_x / self.points.len() as u32,
+            sum_y / self.points.len() as u32,
+        )
     }
 }
 

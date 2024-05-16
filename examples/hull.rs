@@ -18,10 +18,10 @@ fn main() {
     outer_contours.retain(|c| c.contour_area() > 10);
     inner_contours.append(&mut outer_contours);
 
-    // let convex_hulls = outer_contours
-    //     .iter()
-    //     .map(|c| c.convex_hull())
-    //     .collect::<Vec<_>>();
+    let convex_hulls = inner_contours
+        .iter()
+        .map(|c| c.convex_hull())
+        .collect::<Vec<_>>();
 
     let poly_hulls = inner_contours
         .iter()
