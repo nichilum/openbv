@@ -3,7 +3,7 @@ use openbv::{
     morphops::{dilate::DilateExt, erode::ErodeExt},
     open_gray,
     pointops::binarize::BinarizeExt,
-    regionops::contour::ContourExt,
+    regionops::contour::{Contour, ContourDeleteExt, ContourExt},
 };
 
 fn main() {
@@ -16,12 +16,11 @@ fn main() {
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 2);
 
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
-    // only keep contours with area > 10
-    // maybe clean up always in find_contours()?
-    inner_contours.retain(|c| c.contour_area() > 10);
-    outer_contours.retain(|c| c.contour_area() > 10);
-    inner_contours.append(&mut outer_contours);
 
-    let contour_img = dilated_img.draw_contours(inner_contours);
-    contour_img.save("test.png").unwrap();
+    inner_contours.delete_by_area(10);
+    outer_contours.delete_by_area(10);
+    let combined_contours = Contour::combine(&inner_contours, &outer_contours);
+
+    let contour_img = dilated_img.draw_contours(combined_contours);
+    contour_img.save("contours.png").unwrap();
 }

@@ -32,7 +32,7 @@ impl Contour {
         PolyHull::new(&self.points, epsilon)
     }
 
-    pub fn contour_area(&self) -> u32 {
+    pub fn area(&self) -> u32 {
         // from: https://github.com/opencv/opencv/blob/76d9f7aaeb8c9ba8aea80bdb155b60c78da1e309/modules/imgproc/src/shapedescr.cpp#L308
         let mut area = 0;
         for i in 0..self.points.len() {
@@ -315,10 +315,28 @@ impl ContourExt for BinaryImage {
 
 pub trait ContourDeleteExt {
     fn delete_by_area(&mut self, area: u32);
+    fn filter_by_area(&mut self, area: u32) -> Vec<Contour>;
 }
 
 impl ContourDeleteExt for Vec<Contour> {
+    /// retains all contours with an area >= `area`
     fn delete_by_area(&mut self, area: u32) {
-        self.retain(|c| c.contour_area() > area);
+        self.retain(|c| c.area() >= area);
+    }
+
+    /// retains all contours with an area >= `area`.
+    ///
+    /// return all contours with an area < `area`
+    fn filter_by_area(&mut self, area: u32) -> Vec<Contour> {
+        let mut lesser_contours = vec![];
+        for contour in &*self {
+            if contour.area() >= area {
+                lesser_contours.push(contour.clone());
+            }
+        }
+
+        self.retain(|c| c.area() < area);
+
+        lesser_contours
     }
 }

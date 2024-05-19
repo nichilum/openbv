@@ -9,6 +9,10 @@ impl ConvexHull {
         let hull = graham_scan(points);
         ConvexHull { points: hull }
     }
+
+    pub fn contains(&self, x: u32, y: u32) -> bool {
+        false
+    }
 }
 
 impl Hull for ConvexHull {

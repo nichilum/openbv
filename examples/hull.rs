@@ -3,7 +3,7 @@ use openbv::{
     morphops::{dilate::DilateExt, erode::ErodeExt},
     open_gray,
     pointops::binarize::BinarizeExt,
-    regionops::contour::{ContourDeleteExt, ContourExt},
+    regionops::contour::{Contour, ContourDeleteExt, ContourExt},
 };
 
 fn main() {
@@ -19,7 +19,7 @@ fn main() {
     inner_contours.delete_by_area(10);
     outer_contours.delete_by_area(10);
 
-    let mut combined_contours = Contour::combine(inner_contours, outer_contours);
+    let combined_contours = Contour::combine(&inner_contours, &outer_contours);
 
     let convex_hulls = combined_contours
         .iter()
