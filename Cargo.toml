@@ -3,8 +3,14 @@ name = "openbv"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+plotting = ["dep:plotly", "dep:serde"]
+
 [dependencies]
 anyhow = "1.0.83"
 image = "0.25.1"
 rand = "0.8.5"
 rayon = "1.10.0"
+
+plotly = { version = "0.8.4", features = ["kaleido"], optional = true }
+serde = { version = "1.0.202", optional = true }
