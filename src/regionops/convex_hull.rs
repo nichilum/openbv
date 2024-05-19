@@ -6,6 +6,7 @@ use super::hull::Hull;
 pub struct ConvexHull {
     points: Vec<Point>,
 }
+
 impl ConvexHull {
     pub fn new(points: &[Point]) -> Self {
         let hull = graham_scan(points);
