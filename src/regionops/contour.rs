@@ -1,12 +1,12 @@
 use image::{DynamicImage, RgbaImage};
 
-use crate::binary_image::BinaryImage;
+use crate::{binary_image::BinaryImage, math::point::Point};
 
 use super::{convex_hull::ConvexHull, moments::Moments, poly_hull::PolyHull};
 
 #[derive(Debug, Clone)]
 pub struct Contour {
-    pub points: Vec<(u32, u32)>,
+    pub points: Vec<Point>,
     pub label: u8,
 }
 
@@ -38,7 +38,7 @@ impl Contour {
         for i in 0..self.points.len() {
             let p1 = self.points[i];
             let p2 = self.points[(i + 1) % self.points.len()];
-            area += p1.0 as i32 * p2.1 as i32 - p1.1 as i32 * p2.0 as i32;
+            area += p1.x as i32 * p2.y as i32 - p1.y as i32 * p2.x as i32;
         }
         (area / 2).unsigned_abs()
     }
@@ -47,18 +47,18 @@ impl Contour {
         self.points.len()
     }
 
-    pub fn get_center(&self) -> (u32, u32) {
+    pub fn get_center(&self) -> Point {
         let mut sum_x = 0;
         let mut sum_y = 0;
-        for (x, y) in &self.points {
+        for Point { x, y } in &self.points {
             sum_x += x;
             sum_y += y;
         }
 
-        (
-            sum_x / self.points.len() as u32,
-            sum_y / self.points.len() as u32,
-        )
+        Point {
+            x: sum_x / self.points.len() as u32,
+            y: sum_y / self.points.len() as u32,
+        }
     }
 
     pub fn moments(&self) -> Moments {
@@ -93,14 +93,7 @@ pub trait ContourExt {
         label: &mut u32,
         inner_contours: &mut Vec<Contour>,
     );
-    fn tracer(
-        &self,
-        x: u32,
-        y: u32,
-        prev: (u32, u32),
-        start: bool,
-        internal: bool,
-    ) -> Option<(u32, u32)>;
+    fn tracer(&self, x: u32, y: u32, prev: Point, start: bool, internal: bool) -> Option<Point>;
 }
 
 impl ContourExt for BinaryImage {
@@ -185,11 +178,7 @@ impl ContourExt for BinaryImage {
                 let contour = self.trace_contour(output_img, x.saturating_sub(1), y, *label, true);
                 // inner contour is counter clockwise
                 // for the convex hull clockwise rotation is needed
-                let rev_points = contour
-                    .points
-                    .into_iter()
-                    .rev()
-                    .collect::<Vec<(u32, u32)>>();
+                let rev_points = contour.points.into_iter().rev().collect::<Vec<Point>>();
                 inner_contours.push(Contour {
                     points: rev_points,
                     label: *label as u8,
@@ -207,9 +196,9 @@ impl ContourExt for BinaryImage {
         label: u32,
         internal: bool,
     ) -> Contour {
-        let start = (x, y);
-        let second = if let Some((x, y)) = self.tracer(x, y, (0, 0), true, internal) {
-            (x, y)
+        let start = Point::new(x, y);
+        let second = if let Some(Point{x, y}) = self.tracer(x, y, Point::ZERO, true, internal) {
+            Point::new(x, y)
         } else {
             return Contour {
                 points: vec![start],
@@ -221,8 +210,8 @@ impl ContourExt for BinaryImage {
         loop {
             let cur = *points.last().unwrap();
             let prev = points[points.len() - 2];
-            let next = self.tracer(cur.0, cur.1, prev, false, internal);
-            if let Some((x, y)) = next {
+            let next = self.tracer(cur.x, cur.y, prev, false, internal);
+            if let Some(Point{x, y}) = next {
                 // use next so start point isn't twice in vector
                 if next.unwrap() == start {
                     break;
@@ -232,7 +221,7 @@ impl ContourExt for BinaryImage {
                 //     break;
                 // } more triage needed
 
-                points.push((x, y));
+                points.push(Point::new(x, y));
                 output_img.put_pixel(
                     x,
                     y,
@@ -247,16 +236,9 @@ impl ContourExt for BinaryImage {
         }
     }
 
-    fn tracer(
-        &self,
-        x: u32,
-        y: u32,
-        prev: (u32, u32),
-        start: bool,
-        internal: bool,
-    ) -> Option<(u32, u32)> {
+    fn tracer(&self, x: u32, y: u32, prev: Point, start: bool, internal: bool) -> Option<Point> {
         let init_index = if !start {
-            let dif = (prev.0 as i32 - x as i32, prev.1 as i32 - y as i32);
+            let dif = (prev.x as i32 - x as i32, prev.y as i32 - y as i32);
             let d = match dif {
                 (1, 0) => 0,
                 (1, 1) => 1,
@@ -303,7 +285,7 @@ impl ContourExt for BinaryImage {
                 && ny < img.dimensions().1 as i32
                 && img.get_pixel(nx as u32, ny as u32)[0] == 255
             {
-                return Some((nx as u32, ny as u32));
+                return Some(Point::new(nx as u32, ny as u32));
             }
 
             index = (index + 1) % 8;

@@ -1,31 +1,33 @@
+use crate::math::point::Point;
+
 use super::hull::Hull;
 
 #[derive(Debug)]
 pub struct ConvexHull {
-    points: Vec<(u32, u32)>,
+    points: Vec<Point>,
 }
 impl ConvexHull {
-    pub fn new(points: &[(u32, u32)]) -> Self {
+    pub fn new(points: &[Point]) -> Self {
         let hull = graham_scan(points);
         ConvexHull { points: hull }
     }
 
-    pub fn contains(&self, x: u32, y: u32) -> bool {
+    pub fn contains(&self, point: Point) -> bool {
         false
     }
 }
 
 impl Hull for ConvexHull {
-    fn get_center(&self) -> (u32, u32) {
+    fn get_center(&self) -> Point {
         todo!()
     }
 
-    fn get_points(&self) -> &Vec<(u32, u32)> {
+    fn get_points(&self) -> &Vec<Point> {
         &self.points
     }
 }
 
-fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
+fn graham_scan(points: &[Point]) -> Vec<Point> {
     let mut stack = Vec::new();
     stack.push(points[0]);
     stack.push(points[1]);
@@ -54,9 +56,9 @@ fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
     stack
 }
 
-fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> u8 {
-    let val = (q.1 as i32 - p.1 as i32) * (r.0 as i32 - q.0 as i32)
-        - (q.0 as i32 - p.0 as i32) * (r.1 as i32 - q.1 as i32);
+fn orientation(p: Point, q: Point, r: Point) -> u8 {
+    let val = (q.y as i32 - p.y as i32) * (r.x as i32 - q.x as i32)
+        - (q.x as i32 - p.x as i32) * (r.y as i32 - q.y as i32);
 
     if val == 0 {
         return 0;

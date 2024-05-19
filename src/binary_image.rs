@@ -1,7 +1,10 @@
 use image::{DynamicImage, GrayImage, ImageResult, Rgb, RgbImage};
 use rand::Rng;
 
-use crate::regionops::{contour::Contour, hull::Hull};
+use crate::{
+    math::point::Point,
+    regionops::{contour::Contour, hull::Hull},
+};
 
 pub struct BinaryImage(pub GrayImage);
 
@@ -23,12 +26,12 @@ impl BinaryImage {
             let r = rng.gen_range(0..255);
             let g = rng.gen_range(0..255);
             let b = rng.gen_range(0..255);
-            for (x, y) in &contour.points {
+            for Point { x, y } in &contour.points {
                 out_img.put_pixel(*x, *y, image::Rgb([r, g, b]));
             }
 
-            let (c_x, c_y) = contour.get_center();
-            out_img.put_pixel(c_x, c_y, image::Rgb([r, g, b]));
+            let Point { x, y } = contour.get_center();
+            out_img.put_pixel(x, y, image::Rgb([r, g, b]));
         }
 
         out_img
@@ -45,13 +48,13 @@ impl BinaryImage {
 
             let points = hull.get_points();
             for i in 0..points.len() {
-                let (x1, y1) = points[i];
-                let (x2, y2) = points[(i + 1) % points.len()];
+                let Point { x: x1, y: y1 } = points[i];
+                let Point { x: x2, y: y2 } = points[(i + 1) % points.len()];
                 draw_line(&mut out_img, x1, y1, x2, y2, image::Rgb([r, g, b]));
             }
 
-            let (c_x, c_y) = hull.get_center();
-            out_img.put_pixel(c_x, c_y, image::Rgb([r, g, b]));
+            let Point { x, y } = hull.get_center();
+            out_img.put_pixel(x, y, image::Rgb([r, g, b]));
         }
 
         out_img

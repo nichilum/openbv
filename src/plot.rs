@@ -1,4 +1,6 @@
-fn plot_histogram<T>(histogram: &[T], filename: &str, y_title: &str)
+use plotly::{common::Title, layout::Axis, Bar, ImageFormat, Layout, Plot};
+
+pub fn plot_histogram<T>(histogram: &[T], filename: &str, y_title: &str)
 where
     T: Clone + serde::ser::Serialize + 'static,
 {
@@ -15,7 +17,7 @@ where
 
     plot.add_trace(bar);
     plot.write_image(
-        format!("graphs/{filename}"),
+        filename,
         ImageFormat::SVG,
         1024,
         680,

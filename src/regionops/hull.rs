@@ -1,4 +1,6 @@
+use crate::math::point::Point;
+
 pub trait Hull {
-    fn get_center(&self) -> (u32, u32);
-    fn get_points(&self) -> &Vec<(u32, u32)>;
+    fn get_center(&self) -> Point;
+    fn get_points(&self) -> &Vec<Point>;
 }
