@@ -10,6 +10,9 @@ pub mod nonlinearops;
 pub mod pointops;
 pub mod regionops;
 
+#[cfg(feature = "plotting")]
+pub mod plot;
+
 pub fn open_rgb<P>(path: P) -> anyhow::Result<RgbImage>
 where
     P: AsRef<Path>,
