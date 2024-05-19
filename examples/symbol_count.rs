@@ -41,7 +41,7 @@ impl Display for Card {
 }
 
 fn main() {
-    let image = open_gray("./images/Set03_single.jpg").unwrap();
+    let image = open_gray("./images/Set03_subset1.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -91,7 +91,7 @@ fn main() {
     }
 
     // count outer and inner symbols per card
-    for card in &mut cards {
+    for (i, card) in cards.iter_mut().enumerate() {
         let mut inner_count = 0;
         let outer_count = card.outer_symbols_contours.len();
 
@@ -117,7 +117,7 @@ fn main() {
 
         draw_text(
             &mut contour_img,
-            format!("{}", card).as_str(),
+            format!("{}, {}", i, card).as_str(),
             card.center.x as i32,
             card.center.y as i32,
         );

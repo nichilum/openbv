@@ -5,13 +5,16 @@ pub struct HuMoments(pub [f64; 7]);
 
 impl HuMoments {
     pub fn new(image: &GrayImage) -> Self {
-        let mu02 = Self::central_moment(0, 2, image);
-        let mu03 = Self::central_moment(0, 3, image);
-        let mu11 = Self::central_moment(1, 1, image);
-        let mu12 = Self::central_moment(1, 2, image);
-        let mu20 = Self::central_moment(2, 0, image);
-        let mu21 = Self::central_moment(2, 1, image);
-        let mu30 = Self::central_moment(3, 0, image);
+        // https://www.researchgate.net/publication/321494904_Classification_of_Alzheimer_Disease_based_on_Normalized_Hu_Moment_Invariants_and_Multiclassifier
+        let mu00 = Self::central_moment(0, 0, image);
+
+        let mu02 = Self::central_moment(0, 2, image) / (mu00.powf((0. + 2.) / 2. + 1.));
+        let mu03 = Self::central_moment(0, 3, image) / (mu00.powf((0. + 3.) / 2. + 1.));
+        let mu11 = Self::central_moment(1, 1, image) / (mu00.powf((1. + 1.) / 2. + 1.));
+        let mu12 = Self::central_moment(1, 2, image) / (mu00.powf((1. + 2.) / 2. + 1.));
+        let mu20 = Self::central_moment(2, 0, image) / (mu00.powf((2. + 0.) / 2. + 1.));
+        let mu21 = Self::central_moment(2, 1, image) / (mu00.powf((2. + 1.) / 2. + 1.));
+        let mu30 = Self::central_moment(3, 0, image) / (mu00.powf((3. + 0.) / 2. + 1.));
 
         let hu1 = mu20 + mu02;
         let hu2 = (mu20 - mu02).powi(2) + 4.0 * mu11.powi(2);
@@ -63,6 +66,7 @@ impl HuMoments {
                 }
             }
         }
+
         moment
     }
 }
