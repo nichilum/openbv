@@ -1,6 +1,6 @@
-use image::{DynamicImage, GenericImageView, RgbaImage};
+use image::{DynamicImage, GrayImage, RgbaImage};
 
-use crate::{binary_image::BinaryImage, math::point::Point};
+use crate::{binary_image::BinaryImage, math::point::Point, pointops::fill::flood_fill};
 
 use super::{convex_hull::ConvexHull, moments::HuMoments, poly_hull::PolyHull};
 
@@ -62,8 +62,26 @@ impl Contour {
     }
 
     pub fn hu_moments(&self) -> HuMoments {
-        let sub_image = todo!();
-        HuMoments::new(&sub_image)
+        let max_x = self.points.iter().max_by(|a, b| a.x.cmp(&b.x)).unwrap().x;
+        let max_y = self.points.iter().max_by(|a, b| a.y.cmp(&b.y)).unwrap().y;
+        let min_x = self.points.iter().min_by(|a, b| a.x.cmp(&b.x)).unwrap().x;
+        let min_y = self.points.iter().min_by(|a, b| a.y.cmp(&b.y)).unwrap().y;
+
+        let mut image = GrayImage::new(max_x - min_x + 1, max_y - min_y + 1);
+        self.points.iter().for_each(|Point { x, y }| {
+            image.put_pixel(x - min_x, y - min_y, image::Luma([255]));
+        });
+
+        let center = self.get_center();
+        flood_fill(
+            &mut image,
+            center.x as i32 - min_x as i32,
+            center.y as i32 - min_y as i32,
+            0,
+            255,
+        );
+
+        HuMoments::new(&image)
     }
 }
 
@@ -128,7 +146,7 @@ impl ContourExt for BinaryImage {
             }
         }
 
-        output_img.save("out.png");
+        // output_img.save("out.png").unwrap();
 
         (inner_contours, outer_contours)
     }

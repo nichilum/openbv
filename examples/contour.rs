@@ -3,7 +3,7 @@ use openbv::{
     morphops::{dilate::DilateExt, erode::ErodeExt},
     open_gray,
     pointops::binarize::BinarizeExt,
-    regionops::contour::{Contour, ContourDeleteExt, ContourExt},
+    regionops::contour::{Contour, ContourExt},
 };
 
 fn main() {

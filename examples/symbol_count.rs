@@ -41,7 +41,7 @@ impl Display for Card {
 }
 
 fn main() {
-    let image = open_gray("./images/Set03_subset1.jpg").unwrap();
+    let image = open_gray("./images/Set03_single.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -98,6 +98,9 @@ fn main() {
         for inner_symbol in &card.inner_symbols_contours {
             if inner_symbol.area() >= INNER_SYMBOL_AREA_THRESH {
                 inner_count += 1;
+
+                let hus = inner_symbol.hu_moments();
+                println!("{:?}", hus)
             }
         }
 

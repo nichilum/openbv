@@ -1,11 +1,10 @@
-use image::Luma;
+use image::{GrayImage, Luma};
 
-use crate::binary_image::BinaryImage;
-
+#[derive(Debug)]
 pub struct HuMoments(pub [f64; 7]);
 
 impl HuMoments {
-    pub fn new(image: &BinaryImage) -> Self {
+    pub fn new(image: &GrayImage) -> Self {
         let mu02 = Self::central_moment(0, 2, image);
         let mu03 = Self::central_moment(0, 3, image);
         let mu11 = Self::central_moment(1, 1, image);
@@ -36,11 +35,11 @@ impl HuMoments {
         HuMoments([hu1, hu2, hu3, hu4, hu5, hu6, hu7])
     }
 
-    pub fn raw_image_moment(i: u32, j: u32, image: &BinaryImage) -> u32 {
+    pub fn raw_image_moment(i: u32, j: u32, image: &GrayImage) -> u32 {
         let mut moment = 0;
-        for y in 0..image.0.height() {
-            for x in 0..image.0.width() {
-                if *image.0.get_pixel(x, y) == Luma([255]) {
+        for y in 0..image.height() {
+            for x in 0..image.width() {
+                if *image.get_pixel(x, y) == Luma([255]) {
                     moment += (x as u32).pow(i) * (y as u32).pow(j);
                 }
             }
@@ -48,7 +47,7 @@ impl HuMoments {
         moment
     }
 
-    pub fn central_moment(i: u32, j: u32, image: &BinaryImage) -> f64 {
+    pub fn central_moment(i: u32, j: u32, image: &GrayImage) -> f64 {
         let m00 = Self::raw_image_moment(0, 0, image) as f64;
         let m10 = Self::raw_image_moment(1, 0, image) as f64;
         let m01 = Self::raw_image_moment(0, 1, image) as f64;
@@ -56,9 +55,9 @@ impl HuMoments {
         let y_bar = m01 / m00;
 
         let mut moment = 0.0;
-        for y in 0..image.0.height() {
-            for x in 0..image.0.width() {
-                if *image.0.get_pixel(x, y) == Luma([255]) {
+        for y in 0..image.height() {
+            for x in 0..image.width() {
+                if *image.get_pixel(x, y) == Luma([255]) {
                     moment +=
                         ((x as f64) - x_bar).powi(i as i32) * ((y as f64) - y_bar).powi(j as i32);
                 }
