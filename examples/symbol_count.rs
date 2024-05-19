@@ -16,7 +16,7 @@ struct Card {
 }
 
 fn main() {
-    let image = open_gray("./images/Set03.jpg").unwrap();
+    let image = open_gray("./images/Set03_single2.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -49,6 +49,6 @@ fn main() {
         cards.push(card);
     }
 
-    let contour_img = dilated_img.draw_contours(&cards[4].inner_symbols_contours);
+    let contour_img = dilated_img.draw_contours(&cards[0].inner_symbols_contours);
     contour_img.save("outer_contours.png").unwrap();
 }
