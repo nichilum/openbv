@@ -13,8 +13,34 @@ impl ConvexHull {
         ConvexHull { points: hull }
     }
 
+    // https://rosettacode.org/wiki/Ray-casting_algorithm
+    // https://en.wikipedia.org/wiki/Point_in_polygon
     pub fn contains(&self, point: Point) -> bool {
-        false
+        let mut count = 0;
+        let length = self.points.len();
+        for i in 0..length {
+            let p1 = self.points[i];
+            let p2 = self.points[(i + 1) % length];
+
+            if p1.y == p2.y {
+                continue;
+            }
+
+            if point.y < p1.y.min(p2.y) || point.y >= p1.y.max(p2.y) {
+                continue;
+            }
+
+            let x = (point.y as i32 - p1.y as i32) as f32
+                * (p2.x as i32 - p1.x as i32) as f32
+                / (p2.y as i32 - p1.y as i32) as f32
+                + p1.x as f32;
+
+            if x > point.x as f32 {
+                count += 1;
+            }
+        }
+
+        count % 2 == 1
     }
 }
 

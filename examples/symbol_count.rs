@@ -9,6 +9,12 @@ use openbv::{
 // hardcode, ._.
 const CARD_AREA_THRESH: u32 = 5000;
 
+struct Card {
+    pub contour: Contour,
+    pub inner_symbols_contours: Vec<Contour>,
+    pub outer_symbols_contours: Vec<Contour>,
+}
+
 fn main() {
     let image = open_gray("./images/Set03.jpg").unwrap();
 
@@ -22,17 +28,27 @@ fn main() {
     inner_contours.delete_by_area(10);
     outer_contours.delete_by_area(10);
 
-    let cards = outer_contours.filter_by_area(CARD_AREA_THRESH);
-    let symbol_contours = Contour::combine(&inner_contours, &outer_contours);
+    let card_contours = outer_contours.filter_by_area(CARD_AREA_THRESH);
+    let mut cards = Vec::new();
 
-    for contour in &cards {
+    for contour in &card_contours {
         let convex_hull = contour.convex_hull();
-        for symbol in &symbol_contours {
-            let center = symbol.get_center();
-            let contains = convex_hull.contains(center);
+        let mut card = Card {
+            contour: contour.clone(),
+            inner_symbols_contours: Vec::new(),
+            outer_symbols_contours: Vec::new(),
+        };
+
+        for inner in &inner_contours {
+            let center = inner.get_center();
+            if convex_hull.contains(center) {
+                card.inner_symbols_contours.push(inner.clone());
+            }
         }
+
+        cards.push(card);
     }
 
-    let contour_img = dilated_img.draw_contours(symbol_contours);
+    let contour_img = dilated_img.draw_contours(&cards[4].inner_symbols_contours);
     contour_img.save("outer_contours.png").unwrap();
 }

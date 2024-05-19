@@ -18,7 +18,7 @@ impl BinaryImage {
     }
 
     // draws contour and their respective center points
-    pub fn draw_contours(&self, contours: Vec<Contour>) -> RgbImage {
+    pub fn draw_contours(&self, contours: &[Contour]) -> RgbImage {
         let mut out_img = DynamicImage::ImageLuma8(self.0.clone()).to_rgb8();
         let mut rng = rand::thread_rng();
 
