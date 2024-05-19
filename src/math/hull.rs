@@ -27,7 +27,7 @@ pub(crate) fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
     stack
 }
 
-fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> i32 {
+fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> u8 {
     let val = (q.1 as i32 - p.1 as i32) * (r.0 as i32 - q.0 as i32)
         - (q.0 as i32 - p.0 as i32) * (r.1 as i32 - q.1 as i32);
 
