@@ -11,7 +11,7 @@ use openbv::{
 
 // hardcode, ._.
 const CARD_AREA_THRESH: u32 = 5000;
-const INNER_SYMBOL_AREA_THRESH: u32 = 500;
+const INNER_SYMBOL_AREA_THRESH: u32 = 300;
 
 #[derive(Debug)]
 enum FillStyle {
@@ -21,19 +21,28 @@ enum FillStyle {
 }
 
 #[derive(Debug)]
+enum SymbolType {
+    Wave,
+    Pill,
+    Rhombus,
+}
+
+#[derive(Debug)]
 struct Card {
     pub center: Point,
     pub inner_symbols_contours: Vec<Contour>,
     pub outer_symbols_contours: Vec<Contour>,
     pub symbol_amount: Option<usize>,
     pub fill_style: Option<FillStyle>,
+    pub symbol_type: Option<SymbolType>,
 }
 
 impl Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Symbol Amount: {:?}, Fill Style: {:?}",
+            "Symbol Type: {:?}, Symbol Amount: {:?}, Fill Style: {:?}",
+            self.symbol_type,
             self.symbol_amount,
             self.fill_style.as_ref()
         )
@@ -41,7 +50,7 @@ impl Display for Card {
 }
 
 fn main() {
-    let image = open_gray("./images/Set03_subset1.jpg").unwrap();
+    let image = open_gray("./images/Set03.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -50,8 +59,8 @@ fn main() {
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 1);
 
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
-    // inner_contours.delete_by_area(10);
-    // outer_contours.delete_by_area(10);
+    inner_contours.delete_by_area(8);
+    outer_contours.delete_by_area(8);
     inner_contours.delete_duplicates();
     outer_contours.delete_duplicates();
 
@@ -71,6 +80,7 @@ fn main() {
             fill_style: None,
             symbol_amount: None,
             center: contour.get_center(),
+            symbol_type: None,
         };
 
         for inner in &inner_contours {
@@ -92,16 +102,22 @@ fn main() {
 
     // count outer and inner symbols per card
     for (i, card) in cards.iter_mut().enumerate() {
-        let mut inner_count = 0;
+        card.inner_symbols_contours
+            .delete_by_area(INNER_SYMBOL_AREA_THRESH);
+        let inner_count = card.inner_symbols_contours.len();
         let outer_count = card.outer_symbols_contours.len();
 
-        for inner_symbol in &card.inner_symbols_contours {
-            if inner_symbol.area() >= INNER_SYMBOL_AREA_THRESH {
-                inner_count += 1;
+        assert!(inner_count > 0);
 
-                let hus = inner_symbol.hu_moments();
-                println!("{:?}", hus)
-            }
+        let hus = card.inner_symbols_contours[0].hu_moments();
+
+        // am siebten Hu Moment machten wir die Wave => e-10
+        if hus.hu_moments[6] >= 1.0e-10 {
+            card.symbol_type = Some(SymbolType::Wave);
+        } else if hus.hu_moments[1] >= 0.021 || hus.eccentricity <= 4.4 {
+            card.symbol_type = Some(SymbolType::Rhombus);
+        } else {
+            card.symbol_type = Some(SymbolType::Pill);
         }
 
         if outer_count == 0 {
@@ -117,9 +133,27 @@ fn main() {
 
         draw_text(
             &mut contour_img,
-            format!("{}, {}", i, card).as_str(),
+            format!("{}", i).as_str(),
             card.center.x as i32,
             card.center.y as i32,
+        );
+        draw_text(
+            &mut contour_img,
+            format!("{:?}", card.fill_style).as_str(),
+            card.center.x as i32,
+            card.center.y as i32 + 20,
+        );
+        draw_text(
+            &mut contour_img,
+            format!("{:?}", card.symbol_amount).as_str(),
+            card.center.x as i32,
+            card.center.y as i32 + 40,
+        );
+        draw_text(
+            &mut contour_img,
+            format!("{:?}", card.symbol_type).as_str(),
+            card.center.x as i32,
+            card.center.y as i32 + 60,
         );
     }
 

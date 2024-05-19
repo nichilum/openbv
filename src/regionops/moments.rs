@@ -1,11 +1,15 @@
 use image::{GrayImage, Luma};
 
 #[derive(Debug)]
-pub struct HuMoments(pub [f64; 7]);
+pub struct HuMoments {
+    pub hu_moments: [f64; 7],
+    pub eccentricity: f64,
+}
 
 impl HuMoments {
     pub fn new(image: &GrayImage) -> Self {
         // https://www.researchgate.net/publication/321494904_Classification_of_Alzheimer_Disease_based_on_Normalized_Hu_Moment_Invariants_and_Multiclassifier
+        // scale invariance
         let mu00 = Self::central_moment(0, 0, image);
 
         let mu02 = Self::central_moment(0, 2, image) / (mu00.powf((0. + 2.) / 2. + 1.));
@@ -16,6 +20,7 @@ impl HuMoments {
         let mu21 = Self::central_moment(2, 1, image) / (mu00.powf((2. + 1.) / 2. + 1.));
         let mu30 = Self::central_moment(3, 0, image) / (mu00.powf((3. + 0.) / 2. + 1.));
 
+        // rotation invariance
         let hu1 = mu20 + mu02;
         let hu2 = (mu20 - mu02).powi(2) + 4.0 * mu11.powi(2);
         let hu3 = (mu30 - 3.0 * mu12).powi(2) + (3.0 * mu21 - mu03).powi(2);
@@ -35,7 +40,11 @@ impl HuMoments {
                 * (mu21 + mu03)
                 * (3.0 * (mu30 + mu12).powi(2) - (mu21 + mu03).powi(2));
 
-        HuMoments([hu1, hu2, hu3, hu4, hu5, hu6, hu7])
+        HuMoments {
+            hu_moments: [hu1, hu2, hu3, hu4, hu5, hu6, hu7],
+            eccentricity: (mu20 + mu02 + ((mu20 - mu02).powi(2) + 4. * mu11 * mu11).sqrt())
+                / (mu20 + mu02 - ((mu20 - mu02).powi(2) + 4. * mu11 * mu11).sqrt()),
+        }
     }
 
     pub fn raw_image_moment(i: u32, j: u32, image: &GrayImage) -> u32 {
