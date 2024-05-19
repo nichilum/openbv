@@ -4,13 +4,26 @@ use crate::binary_image::BinaryImage;
 
 use super::{convex_hull::ConvexHull, moments::Moments, poly_hull::PolyHull};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Contour {
     pub points: Vec<(u32, u32)>,
     pub label: u8,
 }
 
 impl Contour {
+    pub fn combine(left: &[Contour], right: &[Contour]) -> Vec<Contour> {
+        let mut combined = Vec::with_capacity(left.len() + right.len());
+        for contour in left {
+            combined.push(contour.clone());
+        }
+
+        for contour in right {
+            combined.push(contour.clone());
+        }
+
+        combined
+    }
+
     pub fn convex_hull(&self) -> ConvexHull {
         ConvexHull::new(&self.points)
     }
