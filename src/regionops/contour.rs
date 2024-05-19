@@ -312,3 +312,13 @@ impl ContourExt for BinaryImage {
         None
     }
 }
+
+pub trait ContourDeleteExt {
+    fn delete_by_area(&mut self, area: u32);
+}
+
+impl ContourDeleteExt for Vec<Contour> {
+    fn delete_by_area(&mut self, area: u32) {
+        self.retain(|c| c.contour_area() > area);
+    }
+}
