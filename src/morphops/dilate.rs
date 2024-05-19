@@ -8,6 +8,10 @@ pub trait DilateExt {
 
 impl DilateExt for BinaryImage {
     fn dilate(&self, kernel: &[(i32, i32)], steps: usize) -> BinaryImage {
+        if steps == 0 {
+            return self.0.clone().into();
+        }
+
         let mut dilated_img = dilate(self, kernel);
         for _ in 0..steps - 1 {
             dilated_img = dilate(&dilated_img, kernel);

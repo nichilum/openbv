@@ -9,6 +9,10 @@ pub trait ErodeExt {
 impl ErodeExt for BinaryImage {
     // TODO: inplace
     fn erode(&self, kernel: &[(i32, i32)], steps: usize) -> BinaryImage {
+        if steps == 0 {
+            return self.0.clone().into();
+        }
+
         let mut eroded_img = erode(self, kernel);
         for _ in 0..steps - 1 {
             eroded_img = erode(&eroded_img, kernel);
