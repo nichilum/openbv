@@ -10,7 +10,6 @@ use openbv::{
 const CARD_AREA_THRESH: u32 = 5000;
 
 struct Card {
-    pub contour: Contour,
     pub inner_symbols_contours: Vec<Contour>,
     pub outer_symbols_contours: Vec<Contour>,
 }
@@ -34,7 +33,6 @@ fn main() {
     for contour in &card_contours {
         let convex_hull = contour.convex_hull();
         let mut card = Card {
-            contour: contour.clone(),
             inner_symbols_contours: Vec::new(),
             outer_symbols_contours: Vec::new(),
         };
@@ -43,6 +41,13 @@ fn main() {
             let center = inner.get_center();
             if convex_hull.contains(center) {
                 card.inner_symbols_contours.push(inner.clone());
+            }
+        }
+
+        for outer in &outer_contours {
+            let center = outer.get_center();
+            if convex_hull.contains(center) {
+                card.outer_symbols_contours.push(outer.clone());
             }
         }
 
