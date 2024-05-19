@@ -2,7 +2,7 @@ use image::{DynamicImage, GenericImageView, RgbaImage};
 
 use crate::{binary_image::BinaryImage, math::point::Point};
 
-use super::{convex_hull::ConvexHull, moments::Moments, poly_hull::PolyHull};
+use super::{convex_hull::ConvexHull, moments::HuMoments, poly_hull::PolyHull};
 
 #[derive(Debug, Clone)]
 pub struct Contour {
@@ -61,8 +61,9 @@ impl Contour {
         }
     }
 
-    pub fn moments(&self) -> Moments {
-        todo!()
+    pub fn hu_moments(&self) -> HuMoments {
+        let sub_image = todo!();
+        HuMoments::new(&sub_image)
     }
 }
 
