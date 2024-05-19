@@ -127,6 +127,8 @@ impl ContourExt for BinaryImage {
             }
         }
 
+        output_img.save("out.png");
+
         (inner_contours, outer_contours)
     }
 
@@ -154,13 +156,6 @@ impl ContourExt for BinaryImage {
 
                 if let Some(contour) = self.trace_contour(output_img, x, y, *label, false) {
                     outer_contours.push(contour);
-
-                    // maybe doppelt gemoppelt
-                    output_img.put_pixel(
-                        x,
-                        y,
-                        image::Rgba([*label as u8, *label as u8, *label as u8, 255]),
-                    )
                 }
             }
         }
@@ -223,13 +218,9 @@ impl ContourExt for BinaryImage {
                     break;
                 }
 
-                if output_img.get_pixel(x, y)[3] == 255 {
-                    return None;
-                }
-
                 // if cur == start && (x, y) == second {
                 //     break;
-                // } more triage needed
+                // }
 
                 points.push(Point::new(x, y));
                 output_img.put_pixel(
@@ -238,6 +229,11 @@ impl ContourExt for BinaryImage {
                     image::Rgba([label as u8, label as u8, label as u8, 255]),
                 )
             }
+        }
+
+        // remove plus artifacts
+        if points.len() == 4 {
+            return None;
         }
 
         Some(Contour {
@@ -308,6 +304,7 @@ impl ContourExt for BinaryImage {
 pub trait ContourDeleteExt {
     fn delete_by_area(&mut self, area: u32);
     fn filter_by_area(&mut self, area: u32) -> Vec<Contour>;
+    fn delete_duplicates(&mut self);
 }
 
 impl ContourDeleteExt for Vec<Contour> {
@@ -330,5 +327,21 @@ impl ContourDeleteExt for Vec<Contour> {
         self.retain(|c| c.area() < area);
 
         lesser_contours
+    }
+
+    /// finds duplicates by center point
+    /// this is only needed because I don't understand how the algorithm above can find duplicate contours
+    fn delete_duplicates(&mut self) {
+        let mut center_points: Vec<Point> = vec![];
+
+        self.retain(|c| {
+            let center = c.get_center();
+            let mut retain = false;
+            if !center_points.contains(&center) {
+                center_points.push(c.get_center());
+                retain = true;
+            }
+            retain
+        });
     }
 }
