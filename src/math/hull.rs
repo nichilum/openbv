@@ -1,4 +1,4 @@
-pub fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
+pub(crate) fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
     let mut stack = Vec::new();
     stack.push(points[0]);
     stack.push(points[1]);
@@ -42,7 +42,7 @@ fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> i32 {
     2
 }
 
-pub fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
+pub(crate) fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
     let mut d_max = 0.;
     let mut index_max = -1;
     let line = (points[0], points[points.len() - 1]);
