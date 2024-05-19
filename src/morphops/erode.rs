@@ -1,6 +1,6 @@
 use rayon::iter::ParallelIterator;
 
-use super::binarize::BinaryImage;
+use crate::binary_image::BinaryImage;
 
 pub trait ErodeExt {
     fn erode(&self, kernel: &[(i32, i32)], steps: usize) -> BinaryImage;

@@ -2,8 +2,13 @@ use std::path::Path;
 
 use image::{io::Reader as ImageReader, GrayImage, RgbImage};
 
-pub mod imageops;
+pub mod binary_image;
+pub mod linearops;
 pub mod math;
+pub mod morphops;
+pub mod nonlinearops;
+pub mod pointops;
+pub mod regionops;
 
 pub fn open_rgb<P>(path: P) -> anyhow::Result<RgbImage>
 where

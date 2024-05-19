@@ -1,48 +1,38 @@
-pub(crate) fn graham_scan(points: &[(u32, u32)]) -> Vec<(u32, u32)> {
-    let mut stack = Vec::new();
-    stack.push(points[0]);
-    stack.push(points[1]);
+use super::hull::Hull;
 
-    let mut ind = 2u32;
-    let mut top = 1u32;
-    let length = points.len() as u32;
+#[derive(Debug)]
+pub struct PolyHull {
+    points: Vec<(u32, u32)>,
+}
+impl PolyHull {
+    pub fn new(points: &[(u32, u32)], epsilon: f32) -> Self {
+        let hull = approx_hull(points, epsilon);
+        PolyHull { points: hull }
+    }
+}
 
-    while ind < length {
-        while top > 0
-            && orientation(
-                stack[top as usize - 1],
-                stack[top as usize],
-                points[ind as usize],
-            ) != 2
-        {
-            stack.pop();
-            top -= 1;
+impl Hull for PolyHull {
+    // works better for poly hulls than convex hulls
+    fn get_center(&self) -> (u32, u32) {
+        let mut sum_x = 0;
+        let mut sum_y = 0;
+        for (x, y) in &self.points {
+            sum_x += x;
+            sum_y += y;
         }
 
-        top += 1;
-        stack.push(points[ind as usize]);
-        ind += 1;
+        (
+            sum_x / self.points.len() as u32,
+            sum_y / self.points.len() as u32,
+        )
     }
 
-    stack
+    fn get_points(&self) -> &Vec<(u32, u32)> {
+        &self.points
+    }
 }
 
-fn orientation(p: (u32, u32), q: (u32, u32), r: (u32, u32)) -> u8 {
-    let val = (q.1 as i32 - p.1 as i32) * (r.0 as i32 - q.0 as i32)
-        - (q.0 as i32 - p.0 as i32) * (r.1 as i32 - q.1 as i32);
-
-    if val == 0 {
-        return 0;
-    }
-
-    if val > 0 {
-        return 1;
-    }
-
-    2
-}
-
-pub(crate) fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
+fn approx_hull(points: &[(u32, u32)], epsilon: f32) -> Vec<(u32, u32)> {
     let mut d_max = 0.;
     let mut index_max = -1;
     let line = (points[0], points[points.len() - 1]);

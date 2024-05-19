@@ -1,7 +1,9 @@
 use openbv::{
-    imageops::{binarize::BinarizeExt, contour::ContourExt, dilate::DilateExt, erode::ErodeExt},
     math::{kernel::PLUS_FILTER, thresholds::ThresholdExt},
+    morphops::{dilate::DilateExt, erode::ErodeExt},
     open_gray,
+    pointops::binarize::BinarizeExt,
+    regionops::contour::ContourExt,
 };
 
 fn main() {
