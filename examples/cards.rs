@@ -133,25 +133,25 @@ fn main() {
 
         draw_text(
             &mut contour_img,
-            format!("{}", i).as_str(),
+            format!("Card ID: {}", i).as_str(),
             card.center.x as i32,
             card.center.y as i32,
         );
         draw_text(
             &mut contour_img,
-            format!("{:?}", card.fill_style).as_str(),
+            format!("Fill Style: {:?}", card.fill_style.as_ref().unwrap()).as_str(),
             card.center.x as i32,
             card.center.y as i32 + 20,
         );
         draw_text(
             &mut contour_img,
-            format!("{:?}", card.symbol_amount).as_str(),
+            format!("Symbol Amount: {:?}", card.symbol_amount.unwrap()).as_str(),
             card.center.x as i32,
             card.center.y as i32 + 40,
         );
         draw_text(
             &mut contour_img,
-            format!("{:?}", card.symbol_type).as_str(),
+            format!("Symbol Type: {:?}", card.symbol_type.as_ref().unwrap()).as_str(),
             card.center.x as i32,
             card.center.y as i32 + 60,
         );
@@ -167,11 +167,11 @@ use imageproc::drawing::draw_text_mut;
 fn draw_text(image: &mut RgbImage, text: &str, x: i32, y: i32) {
     let font = FontRef::try_from_slice(include_bytes!("../fonts/Cairo-Medium.ttf")).unwrap();
 
-    let height = 20.;
+    let height = 30.;
     let scale = PxScale {
         x: height,
         y: height,
     };
 
-    draw_text_mut(image, Rgb([255u8, 0, 0]), x, y, scale, &font, text);
+    draw_text_mut(image, Rgb([220, 46, 255]), x, y, scale, &font, text);
 }

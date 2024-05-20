@@ -42,9 +42,9 @@ impl BinaryImage {
 
         let mut rng = rand::thread_rng();
         for hull in hulls {
-            let r = rng.gen_range(0..255);
-            let g = rng.gen_range(0..255);
-            let b = rng.gen_range(0..255);
+            let r = rng.gen_range(60..255);
+            let g = rng.gen_range(60..255);
+            let b = rng.gen_range(60..255);
 
             let points = hull.get_points();
             for i in 0..points.len() {
