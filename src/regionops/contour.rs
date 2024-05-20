@@ -146,7 +146,7 @@ impl ContourExt for BinaryImage {
             }
         }
 
-        // output_img.save("out.png").unwrap();
+        // output_img.save("export/contour_output_image.png").unwrap();
 
         (inner_contours, outer_contours)
     }

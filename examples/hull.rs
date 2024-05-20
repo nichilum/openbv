@@ -7,7 +7,7 @@ use openbv::{
 };
 
 fn main() {
-    let image = open_gray("./images/Set03_single.jpg").unwrap();
+    let image = open_gray("./images/Set03_subset1.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -21,10 +21,10 @@ fn main() {
 
     let combined_contours = Contour::combine(&inner_contours, &outer_contours);
 
-    let convex_hulls = combined_contours
-        .iter()
-        .map(|c| c.convex_hull())
-        .collect::<Vec<_>>();
+    // let convex_hulls = combined_contours
+    //     .iter()
+    //     .map(|c| c.convex_hull())
+    //     .collect::<Vec<_>>();
 
     let poly_hulls = combined_contours
         .iter()
@@ -32,5 +32,5 @@ fn main() {
         .collect::<Vec<_>>();
 
     let hull_img = dilated_img.draw_hulls(poly_hulls);
-    hull_img.save("export/poly_hulls.png").unwrap();
+    hull_img.save("export/subset_poly_hulls.png").unwrap();
 }

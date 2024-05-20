@@ -50,7 +50,7 @@ impl Display for Card {
 }
 
 fn main() {
-    let image = open_gray("./images/Set03.jpg").unwrap();
+    let image = open_gray("./images/Set03_single2.jpg").unwrap();
 
     let otsu_thresh = image.otsu().unwrap();
     let binary_img = image.binarize(otsu_thresh);
@@ -59,15 +59,17 @@ fn main() {
     let dilated_img = eroded_img.dilate(PLUS_FILTER, 1);
 
     let (mut inner_contours, mut outer_contours) = dilated_img.find_contours();
+
+    // filter contours
     inner_contours.delete_by_area(8);
     outer_contours.delete_by_area(8);
     inner_contours.delete_duplicates();
     outer_contours.delete_duplicates();
 
     let mut contour_img =
-    // dilated_img.draw_contours(&Contour::combine(&inner_contours, &outer_contours));
-    dilated_img.draw_contours(&inner_contours);
+        dilated_img.draw_contours(&Contour::combine(&inner_contours, &outer_contours));
 
+    // get card contours
     let card_contours = outer_contours.filter_by_area(CARD_AREA_THRESH);
     let mut cards = Vec::new();
 
@@ -112,6 +114,7 @@ fn main() {
         let hus = card.inner_symbols_contours[0].hu_moments();
 
         // am siebten Hu Moment machten wir die Wave => e-10
+        // get symbol type
         if hus.hu_moments[6] >= 1.0e-10 {
             card.symbol_type = Some(SymbolType::Wave);
         } else if hus.hu_moments[1] >= 0.021 || hus.eccentricity <= 4.4 {
@@ -120,6 +123,7 @@ fn main() {
             card.symbol_type = Some(SymbolType::Pill);
         }
 
+        // get symbol fill style
         if outer_count == 0 {
             card.symbol_amount = Some(inner_count);
             card.fill_style = Some(FillStyle::Filled);

@@ -30,8 +30,7 @@ impl ConvexHull {
                 continue;
             }
 
-            let x = (point.y as i32 - p1.y as i32) as f32
-                * (p2.x as i32 - p1.x as i32) as f32
+            let x = (point.y as i32 - p1.y as i32) as f32 * (p2.x as i32 - p1.x as i32) as f32
                 / (p2.y as i32 - p1.y as i32) as f32
                 + p1.x as f32;
 
@@ -45,8 +44,19 @@ impl ConvexHull {
 }
 
 impl Hull for ConvexHull {
+    // doesn't works as well here
     fn get_center(&self) -> Point {
-        todo!()
+        let mut sum_x = 0;
+        let mut sum_y = 0;
+        for Point { x, y } in &self.points {
+            sum_x += x;
+            sum_y += y;
+        }
+
+        Point::new(
+            sum_x / self.points.len() as u32,
+            sum_y / self.points.len() as u32,
+        )
     }
 
     fn get_points(&self) -> &Vec<Point> {
