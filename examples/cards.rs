@@ -157,7 +157,7 @@ fn main() {
         );
     }
 
-    contour_img.save("outer_contours.png").unwrap();
+    contour_img.save("export/outer_contours.png").unwrap();
 }
 
 use ab_glyph::{FontRef, PxScale};

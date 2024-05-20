@@ -20,5 +20,5 @@ fn main() {
     let combined_contours = Contour::combine(&inner_contours, &outer_contours);
 
     let contour_img = dilated_img.draw_contours(&outer_contours);
-    contour_img.save("contours.png").unwrap();
+    contour_img.save("export/contours.png").unwrap();
 }

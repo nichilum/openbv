@@ -32,5 +32,5 @@ fn main() {
         .collect::<Vec<_>>();
 
     let hull_img = dilated_img.draw_hulls(poly_hulls);
-    hull_img.save("poly_hulls.png").unwrap();
+    hull_img.save("export/poly_hulls.png").unwrap();
 }
