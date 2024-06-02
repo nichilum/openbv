@@ -1,3 +1,4 @@
+pub mod canny;
 pub mod contour;
 pub mod convex_hull;
 pub mod hull;
