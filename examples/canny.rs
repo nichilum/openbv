@@ -1,7 +1,7 @@
 use openbv::{open_gray, regionops::canny::CannyExt};
 
 fn main() {
-    let image = open_gray("./images/Set03_single.jpg").unwrap();
+    let image = open_gray("./images/messi.jpeg").unwrap();
 
     image.save("export/bcanny.png").unwrap();
 

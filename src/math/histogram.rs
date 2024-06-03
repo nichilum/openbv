@@ -51,6 +51,21 @@ impl Histogram {
                 .collect::<Vec<_>>(),
         )
     }
+
+    pub fn median(&self, start: usize, end: usize) -> u8 {
+        let all: usize = self.0[start..=end].iter().sum();
+
+        let mut sum = 0;
+        for index in start..=end {
+            sum += self.0[index];
+
+            if sum >= all / 2 {
+                return index as u8;
+            }
+        }
+
+        unreachable!("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+    }
 }
 
 impl NormalizedHistogram {

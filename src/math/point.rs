@@ -10,9 +10,9 @@ impl From<(u32, u32)> for Point {
     }
 }
 
-impl Point{
+impl Point {
     pub const ZERO: Point = Point { x: 0, y: 0 };
-    
+
     pub fn new(x: u32, y: u32) -> Self {
         Self { x, y }
     }

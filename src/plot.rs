@@ -16,11 +16,5 @@ where
     let bar = Bar::new(x, histogram.to_vec());
 
     plot.add_trace(bar);
-    plot.write_image(
-        filename,
-        ImageFormat::SVG,
-        1024,
-        680,
-        1.0,
-    );
+    plot.write_image(filename, ImageFormat::SVG, 1024, 680, 1.0);
 }

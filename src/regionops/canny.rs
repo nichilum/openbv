@@ -1,4 +1,5 @@
 use image::{GenericImageView, GrayImage, Luma};
+use imageproc::{drawing::Canvas, math};
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator};
 
 pub trait CannyExt {
@@ -11,20 +12,21 @@ impl CannyExt for GrayImage {
         let (gx, gy) = canny_sobel(&smoothed_image);
 
         let mut edge_image = GrayImage::new(self.width(), self.height());
-        edge_image.par_enumerate_pixels_mut().for_each(
-            |(x, y, pixel)| {
+        edge_image
+            .par_enumerate_pixels_mut()
+            .for_each(|(x, y, pixel)| {
                 let index = (y * self.width() + x) as usize;
                 let gx_val = gx.data[index];
                 let gy_val = gy.data[index];
 
                 let val = ((gx_val.pow(2) + gy_val.pow(2)) as f32).sqrt() as u8;
                 *pixel = Luma([val]);
-            },
-        );
+            });
 
         let mut direction_image = GrayImage::new(self.width(), self.height());
-        direction_image.par_enumerate_pixels_mut().for_each(
-            |(x, y, pixel)| {
+        direction_image
+            .par_enumerate_pixels_mut()
+            .for_each(|(x, y, pixel)| {
                 let index = (y * self.width() + x) as usize;
                 let gx_val = gx.data[index] as f64;
                 let gy_val = gy.data[index] as f64;
@@ -33,7 +35,7 @@ impl CannyExt for GrayImage {
                 if val < 0.0 {
                     val += std::f64::consts::PI;
                 }
-                
+
                 match val.to_degrees() {
                     0.0..=22.5 | 157.5..=180.0 => *pixel = Luma([0]),
                     22.5..=67.5 => *pixel = Luma([45]),
@@ -41,10 +43,55 @@ impl CannyExt for GrayImage {
                     112.5..=157.5 => *pixel = Luma([135]),
                     _ => unreachable!(),
                 }
-            },
-        );
-        
-        direction_image
+            });
+
+        let mut thin_edge_image = edge_image.clone();
+        thin_edge_image
+            .par_enumerate_pixels_mut()
+            .for_each(|(x, y, pixel)| {
+                let angle = direction_image.get_pixel(x, y)[0];
+                let (left, right) = match angle {
+                    0 => {
+                        let right = edge_image
+                            .get_pixel_checked(x.wrapping_sub(1), y)
+                            .unwrap_or(&Luma([0]))[0];
+                        let left = edge_image.get_pixel_checked(x + 1, y).unwrap_or(&Luma([0]))[0];
+                        (left, right)
+                    }
+                    45 => {
+                        let right = edge_image
+                            .get_pixel_checked(x + 1, y.wrapping_sub(1))
+                            .unwrap_or(&Luma([0]))[0];
+                        let left = edge_image
+                            .get_pixel_checked(x.wrapping_sub(1), y + 1)
+                            .unwrap_or(&Luma([0]))[0];
+                        (left, right)
+                    }
+                    90 => {
+                        let right = edge_image
+                            .get_pixel_checked(x, y.wrapping_sub(1))
+                            .unwrap_or(&Luma([0]))[0];
+                        let left = edge_image.get_pixel_checked(x, y + 1).unwrap_or(&Luma([0]))[0];
+                        (left, right)
+                    }
+                    135 => {
+                        let right = edge_image
+                            .get_pixel_checked(x.wrapping_sub(1), y.wrapping_sub(1))
+                            .unwrap_or(&Luma([0]))[0];
+                        let left = edge_image
+                            .get_pixel_checked(x + 1, y + 1)
+                            .unwrap_or(&Luma([0]))[0];
+                        (left, right)
+                    }
+                    _ => unreachable!(),
+                };
+
+                if !(pixel[0] > right && pixel[0] > left) {
+                    *pixel = Luma([0]);
+                }
+            });
+
+        thin_edge_image
     }
 }
 
@@ -105,7 +152,7 @@ fn canny_convolve(base_image: &GrayImage, kernel: &[&[i32]], norm_fac: f32) -> E
     let half_filter_width_v = kernel.len() as i32 / 2;
 
     new_image
-    .data
+        .data
         .par_iter_mut()
         .enumerate()
         .for_each(|(index, pixel)| unsafe {
@@ -116,7 +163,8 @@ fn canny_convolve(base_image: &GrayImage, kernel: &[&[i32]], norm_fac: f32) -> E
 
             for dx in -half_filter_width_h..=half_filter_width_h {
                 for dy in -half_filter_width_v..=half_filter_width_v {
-                    sum += kernel[(dy + half_filter_width_v) as usize][(dx + half_filter_width_h) as usize]
+                    sum += kernel[(dy + half_filter_width_v) as usize]
+                        [(dx + half_filter_width_h) as usize]
                         * base_image.unsafe_get_pixel(
                             if dx.is_negative() {
                                 x.saturating_sub(dx.abs() as u32)
@@ -140,7 +188,7 @@ fn canny_convolve(base_image: &GrayImage, kernel: &[&[i32]], norm_fac: f32) -> E
                 }
             }
 
-            *pixel = (norm_fac * sum as f32 ) as i32;
+            *pixel = (norm_fac * sum as f32) as i32;
         });
 
     new_image
