@@ -1,5 +1,4 @@
 use image::{GenericImageView, GrayImage, Luma};
-use imageproc::{drawing::Canvas, math};
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator};
 
 pub trait CannyExt {

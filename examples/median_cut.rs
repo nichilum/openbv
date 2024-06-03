@@ -20,20 +20,20 @@ fn main() {
 
         // left: left to edge
         q.push_back(
-            ((
+            (
                 hist.median(left, bucket_edge as usize),
                 left,
                 bucket_edge as usize,
-            )),
+            ),
         );
 
         // right: edge to right
         q.push_back(
-            ((
+            (
                 hist.median(bucket_edge as usize, right),
                 bucket_edge as usize,
                 right,
-            )),
+            ),
         );
 
         count += 1;
