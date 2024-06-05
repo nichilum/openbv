@@ -7,8 +7,6 @@ fn main() {
     let image = open_rgb("./images/Set03_single.jpg").unwrap();
     let hsv_img = image.to_hsv();
 
-    println!("{:?}", hsv_img.get_pixel(93, 127));
-
     // hsl(347, 57%, 43%)
 
     let mut binary_img = open_gray("./images/Set03_single.jpg").unwrap();
