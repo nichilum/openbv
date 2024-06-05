@@ -9,6 +9,7 @@ pub mod morphops;
 pub mod nonlinearops;
 pub mod pointops;
 pub mod regionops;
+pub mod colorops;
 
 #[cfg(feature = "plotting")]
 pub mod plot;
