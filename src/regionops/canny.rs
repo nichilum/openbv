@@ -122,7 +122,7 @@ impl EdgeImage {
             .par_enumerate_pixels_mut()
             .for_each(|(x, y, pixel)| {
                 let index = (y * self.width + x) as usize;
-                let val = self.data[index].abs() as u8;
+                let val = self.data[index].unsigned_abs() as u8;
                 *pixel = Luma([val]);
             });
 
@@ -166,22 +166,18 @@ fn canny_convolve(base_image: &GrayImage, kernel: &[&[i32]], norm_fac: f32) -> E
                         [(dx + half_filter_width_h) as usize]
                         * base_image.unsafe_get_pixel(
                             if dx.is_negative() {
-                                x.saturating_sub(dx.abs() as u32)
+                                x.saturating_sub(dx.unsigned_abs())
+                            } else if x + dx as u32 >= width {
+                                width - 1
                             } else {
-                                if x + dx as u32 >= width {
-                                    width - 1
-                                } else {
-                                    x + dx as u32
-                                }
+                                x + dx as u32
                             },
                             if dy.is_negative() {
-                                y.saturating_sub(dy.abs() as u32)
+                                y.saturating_sub(dy.unsigned_abs())
+                            } else if y + dy as u32 >= height {
+                                height - 1
                             } else {
-                                if y + dy as u32 >= height {
-                                    height - 1
-                                } else {
-                                    y + dy as u32
-                                }
+                                y + dy as u32
                             },
                         )[0] as i32;
                 }
@@ -211,22 +207,18 @@ fn convolve(base_image: &GrayImage, kernel: &[&[u32]], norm_fac: f32) -> GrayIma
                     sum += kernel[(dy + 2) as usize][(dx + 2) as usize]
                         * base_image.unsafe_get_pixel(
                             if dx.is_negative() {
-                                x.saturating_sub(dx.abs() as u32)
+                                x.saturating_sub(dx.unsigned_abs())
+                            } else if x + dx as u32 >= width {
+                                width - 1
                             } else {
-                                if x + dx as u32 >= width {
-                                    width - 1
-                                } else {
-                                    x + dx as u32
-                                }
+                                x + dx as u32
                             },
                             if dy.is_negative() {
-                                y.saturating_sub(dy.abs() as u32)
+                                y.saturating_sub(dy.unsigned_abs())
+                            } else if y + dy as u32 >= height {
+                                height - 1
                             } else {
-                                if y + dy as u32 >= height {
-                                    height - 1
-                                } else {
-                                    y + dy as u32
-                                }
+                                y + dy as u32
                             },
                         )[0] as u32;
                 }

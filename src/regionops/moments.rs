@@ -12,11 +12,11 @@ impl HuMoments {
         // scale invariance
         let mu00 = Self::central_moment(0, 0, image);
 
-        let mu02 = Self::central_moment(0, 2, image) / (mu00.powf((0. + 2.) / 2. + 1.));
+        let mu02 = Self::central_moment(0, 2, image) / (mu00.powf(1. + 1.));
         let mu03 = Self::central_moment(0, 3, image) / (mu00.powf((0. + 3.) / 2. + 1.));
-        let mu11 = Self::central_moment(1, 1, image) / (mu00.powf((1. + 1.) / 2. + 1.));
+        let mu11 = Self::central_moment(1, 1, image) / (mu00.powf(1. + 1.));
         let mu12 = Self::central_moment(1, 2, image) / (mu00.powf((1. + 2.) / 2. + 1.));
-        let mu20 = Self::central_moment(2, 0, image) / (mu00.powf((2. + 0.) / 2. + 1.));
+        let mu20 = Self::central_moment(2, 0, image) / (mu00.powf(1. + 1.));
         let mu21 = Self::central_moment(2, 1, image) / (mu00.powf((2. + 1.) / 2. + 1.));
         let mu30 = Self::central_moment(3, 0, image) / (mu00.powf((3. + 0.) / 2. + 1.));
 
@@ -52,7 +52,7 @@ impl HuMoments {
         for y in 0..image.height() {
             for x in 0..image.width() {
                 if *image.get_pixel(x, y) == Luma([255]) {
-                    moment += (x as u32).pow(i) * (y as u32).pow(j);
+                    moment += x.pow(i) * y.pow(j);
                 }
             }
         }

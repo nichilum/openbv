@@ -28,18 +28,10 @@ impl MedianCutExt for GrayImage {
             }
 
             // left: left to edge
-            q.push_back((
-                hist.median(left, bucket_edge as usize),
-                left,
-                bucket_edge as usize,
-            ));
+            q.push_back((hist.median(left, bucket_edge), left, bucket_edge));
 
             // right: edge to right
-            q.push_back((
-                hist.median(bucket_edge as usize, right),
-                bucket_edge as usize,
-                right,
-            ));
+            q.push_back((hist.median(bucket_edge, right), bucket_edge, right));
         }
 
         bucket_edges.sort_unstable();
@@ -60,11 +52,10 @@ impl MedianCutExt for GrayImage {
         let mut medians = Vec::new();
         let mut last = 0;
         for &edge in &bucket_edges {
-            let median = hist.median(last, edge as usize);
+            let median = hist.median(last, edge);
             medians.push(median);
             last = edge;
         }
-        // println!("{medians:?}");
 
         self.par_pixels_mut().for_each(|pixel| {
             let value = pixel[0] as usize;
