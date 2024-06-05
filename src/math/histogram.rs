@@ -52,7 +52,7 @@ impl Histogram {
         )
     }
 
-    pub fn median(&self, start: usize, end: usize) -> u8 {
+    pub fn median(&self, start: usize, end: usize) -> usize {
         let all: usize = self.0[start..=end].iter().sum();
 
         let mut sum = 0;
@@ -60,7 +60,7 @@ impl Histogram {
             sum += self.0[index];
 
             if sum >= all / 2 {
-                return index as u8;
+                return index;
             }
         }
 
