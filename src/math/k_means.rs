@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use image::{GenericImage, Rgb};
+use image::Rgb;
 
 use rand::{self, Rng};
 
@@ -9,6 +9,7 @@ use super::point::Point;
 pub fn k_means_hsv(
     image: &image::ImageBuffer<Rgb<f32>, Vec<f32>>,
     k: usize,
+    iterations: usize,
 ) -> (Vec<Rgb<f32>>, Vec<Vec<Point>>) {
     let mut centers = Vec::<Rgb<f32>>::with_capacity(k);
     let mut clusters: Vec<Vec<Point>> = vec![Vec::new(); centers.len()];
@@ -23,7 +24,14 @@ pub fn k_means_hsv(
     }
 
     let mut converged = false;
+    let mut iter_count = 0;
     while !converged {
+        // ability to break early
+        if iter_count == iterations && iterations > 0 {
+            break;
+        }
+        iter_count += 1;
+
         clusters = vec![Vec::new(); centers.len()];
 
         image.enumerate_pixels().for_each(|(x, y, pixel)| {

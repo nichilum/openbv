@@ -6,7 +6,7 @@ fn main() {
     let mut image = open_rgb("./images/Set03_single.jpg").unwrap();
     let hsv_img = image.to_hsv();
 
-    let (centers, clusters) = k_means_hsv(&hsv_img, 20);
+    let (centers, clusters) = k_means_hsv(&hsv_img, 4, 0);
 
     for (i, cluster) in clusters.iter().enumerate() {
         let center_color = centers[i];
