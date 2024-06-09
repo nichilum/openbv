@@ -16,33 +16,7 @@ pub fn hough(image: &GrayImage, r_step: f32, theta_step: f32, threshold: u32) ->
     let max_r = ((width.pow(2) + height.pow(2)) as f32).sqrt();
     let max_theta = std::f32::consts::PI;
 
-    let mut accumulator = vec![0; (max_r / r_step * max_theta / theta_step) as usize];
-
-    for (x, y, pixel) in image.enumerate_pixels() {
-        if pixel[0] == 0 {
-            continue;
-        }
-
-        for theta in 0..(max_theta / theta_step) as u32 {
-            let theta = theta as f32 * theta_step;
-            let r = (x as f32 * theta.cos() + y as f32 * theta.sin()) / r_step;
-            let r = r.round() as usize;
-            accumulator[r] += 1;
-        }
-    }
-
-    let mut lines = Vec::new();
-    for (r, &votes) in accumulator.iter().enumerate() {
-        if votes > threshold {
-            let theta = r as f32 * theta_step;
-            lines.push(Line {
-                r: r as f32 * r_step,
-                theta: theta as u32,
-            });
-        }
-    }
-
-    lines
+    todo!();
 }
 
 pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
