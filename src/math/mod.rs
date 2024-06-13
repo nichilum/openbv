@@ -4,4 +4,4 @@ pub mod kernel;
 pub mod point;
 pub mod ransac;
 pub mod thresholds;
-pub mod line_detection;
+pub mod hough;

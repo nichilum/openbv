@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use openbv::{math::line_detection::{draw_lines, hough}, open_gray};
+use openbv::{math::hough::{draw_lines, hough, Line}, open_gray};
 
 fn main() {
     let image = open_gray("./images/line.png").unwrap();
