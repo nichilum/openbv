@@ -524,6 +524,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "geometry-predicates"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dba84198cf199c11b83f1cb9243eaeb70dc50b719d2835ebf34bf2481bca010"
+
+[[package]]
 name = "getrandom"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1014,6 +1020,7 @@ dependencies = [
  "rand",
  "rayon",
  "serde",
+ "smallest-enclosing-circle",
 ]
 
 [[package]]
@@ -1427,6 +1434,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95890f873bec569a0362c235787f3aca6e1e887302ba4840839bcc6459c42da6"
 dependencies = [
  "quote",
+]
+
+[[package]]
+name = "smallest-enclosing-circle"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3133fac940f3764b9789ea26397cc5efa7d9ae7cf5a42a4e084dd43b5b8d0e1"
+dependencies = [
+ "geometry-predicates",
 ]
 
 [[package]]

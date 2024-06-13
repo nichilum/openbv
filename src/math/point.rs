@@ -17,3 +17,14 @@ impl Point {
         Self { x, y }
     }
 }
+
+impl From<Point> for [u32; 2] {
+    fn from(value: Point) -> Self {
+        [value.x, value.y]
+    }
+}
+impl From<Point> for [f64; 2] {
+    fn from(value: Point) -> Self {
+        [value.x as f64, value.y as f64]
+    }
+}

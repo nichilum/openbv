@@ -17,3 +17,4 @@ plotly = { version = "0.8.4", features = ["kaleido"], optional = true }
 serde = { version = "1.0.202", optional = true }
 imageproc = "0.25.0"
 ab_glyph = "0.2.26"
+smallest-enclosing-circle = "0.2.0"
