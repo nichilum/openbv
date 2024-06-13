@@ -1,4 +1,4 @@
-use image::{DynamicImage, GrayImage, ImageResult, Rgb, RgbImage};
+use image::{DynamicImage, GenericImageView, GrayImage, ImageResult, Rgb, RgbImage};
 use rand::Rng;
 
 use crate::{
@@ -74,7 +74,9 @@ pub fn draw_line(img: &mut RgbImage, x1: u32, y1: u32, x2: u32, y2: u32, pixel: 
     let mut err = dx - dy;
 
     loop {
-        img.put_pixel(x1 as u32, y1 as u32, pixel);
+        if img.in_bounds(x1 as u32, y1 as u32) {
+            img.put_pixel(x1 as u32, y1 as u32, pixel);
+        }
 
         if x1 == x2 && y1 == y2 {
             break;
