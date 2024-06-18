@@ -58,7 +58,7 @@ pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
 
     for line in lines {
         let r = line.r;
-        let theta = line.theta.clamp(0., 89.99999f32.to_radians());
+        let theta = line.theta;
         // when set exactly to 90 degrees it fails ._.
 
         // line points
@@ -67,63 +67,50 @@ pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
         let x2 = x1 + y1;
         let y2 = y1 - x1;
 
-        // intersection with upper x-axis or left y-axis
-        let x3 = 0.;
-        let y3 = 0.;
-        let x4 = image.width() as f32 - 1.;
-        let y4 = 0.;
-        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        let i_ul_x;
-        let i_ul_y;
-        if denom == 0.
-            || ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom
-                >= image.width() as f32
-        {
-            let x3 = image.width() as f32 - 1.;
-            let y3 = 0.;
-            let x4 = image.width() as f32 - 1.;
-            let y4 = image.height() as f32 - 1.;
+        let mut intersections: Vec<(f32, f32)> = vec![];
+        let walls: Vec<(f32, f32, f32, f32)> = vec![
+            (0., 0., image.width() as f32 - 1., 0.),
+            (
+                image.width() as f32 - 1.,
+                0.,
+                image.width() as f32 - 1.,
+                image.height() as f32 - 1.,
+            ),
+            (0., 0., 0., image.width() as f32 - 1.),
+            (
+                0.,
+                image.height() as f32 - 1.,
+                image.width() as f32 - 1.,
+                image.height() as f32 - 1.,
+            ),
+        ];
+
+        for (x3, y3, x4, y4) in walls {
+            println!("{},{},{},{}", x3, y3, x4, y4);
             let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-            i_ul_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
-            i_ul_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
-        } else {
-            i_ul_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
-            i_ul_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
+            if denom != 0. {
+                intersections.push((
+                    ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom,
+                    ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom,
+                ));
+            }
         }
 
-        // intersection with lower x-axis or right y-axis
-        let x3 = 0.;
-        let y3 = 0.;
-        let x4 = 0.;
-        let y4 = image.height() as f32 - 1.;
-        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        let i_lr_x;
-        let i_lr_y;
-        if denom == 0.
-            || ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom
-                >= image.height() as f32
-        {
-            let x3 = 0.;
-            let y3 = image.height() as f32 - 1.;
-            let x4 = image.width() as f32 - 1.;
-            let y4 = image.height() as f32 - 1.;
-            let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-            i_lr_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
-            i_lr_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
-        } else {
-            i_lr_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
-            i_lr_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom;
-        }
+        let intersections = intersections
+            .iter()
+            .filter(|(x, y)| {
+                *x < image.width() as f32 && *x >= 0. && *y < image.height() as f32 && *y >= 0.
+            })
+            .collect::<Vec<&(f32, f32)>>();
 
-        println!("{},{}", i_ul_x as u32, i_ul_y as u32);
-        println!("{},{}", i_lr_x as u32, i_lr_y as u32);
+        assert!(intersections.len() == 2);
 
         draw_line(
             &mut out_img,
-            i_ul_x as u32,
-            i_ul_y as u32,
-            i_lr_x as u32,
-            i_lr_y as u32,
+            intersections[0].0 as u32,
+            intersections[0].1 as u32,
+            intersections[1].0 as u32,
+            intersections[1].1 as u32,
             image::Rgb([0, 255, 0]),
         );
 
