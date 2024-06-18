@@ -2,16 +2,16 @@ use std::f32::consts::PI;
 
 use openbv::{
     math::hough::{draw_lines, hough},
-    open_gray, regionops::canny::CannyExt,
+    open_gray,
 };
 
 fn main() {
-    let image = open_gray("./images/Set03_single.jpg").unwrap();
-    let canny = image.canny();
-    let hough_lines = hough(&canny, 1., PI / 180., 15);
+    let image = open_gray("./export/test_canny.png").unwrap();
+    // let canny = image.canny();
+    let hough_lines = hough(&image, 1., PI / 180., 100);
     println!("{:?}", hough_lines);
 
-    let out_img = draw_lines(&canny, &hough_lines);
+    let out_img = draw_lines(&image, &hough_lines);
     // let out_img = draw_lines(
     //     &image,
     //     &[Line {

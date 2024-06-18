@@ -13,10 +13,11 @@ pub struct Line {
 
 pub fn hough(image: &GrayImage, r_step: f32, theta_step: f32, threshold: u32) -> Vec<Line> {
     let (width, height) = image.dimensions();
-    let center = (width / 2, height / 2);
-    let max_r = (((width / 2).pow(2) + (height / 2).pow(2)) as f32).sqrt();
+    let max_r = ((width.pow(2) + height.pow(2)) as f32).sqrt();
+    // println!("max_r: {max_r}");
     let n_theta = (std::f32::consts::PI / theta_step).ceil() as u32;
-    let n_r = (2. * max_r / r_step).ceil() as u32;
+    let n_r = (max_r / r_step).ceil() as u32;
+    // println!("nr: {n_r}");
     let mut acc = vec![vec![0; n_theta as usize]; n_r as usize];
 
     image.enumerate_pixels().for_each(|(x, y, pixel)| {
@@ -24,36 +25,27 @@ pub fn hough(image: &GrayImage, r_step: f32, theta_step: f32, threshold: u32) ->
             return;
         }
 
-        //let (x, y) = (x as i32 - center.0 as i32, y as i32 - center.1 as i32);
+        // println!("{}, {}", x, y);
         for i_theta in 0..n_theta {
             let theta = theta_step * i_theta as f32;
+            // println!("{theta}");
             let r = x as f32 * theta.cos() + y as f32 * theta.sin();
-            let i_r = (n_r as f32 / 2. + (r / r_step).round()) as u32;
+            if r == 0. {
+                println!("{}, {}", x, y);
+            }
+            let i_r = (r / r_step).round() as u32;
             acc[i_r as usize][i_theta as usize] += 1;
         }
     });
 
-    // let line_params = acc
-    //     .iter()
-    //     .enumerate()
-    //     .filter(|(_, &value)| value >= threshold)
-    //     .map(|(i, _)| {
-    //         let r = (i as u32 / n_theta) as f32 * r_step - max_r;
-    //         let theta = (i as u32 % n_theta) as f32 * theta_step;
-
-    //         Line {
-    //             r,
-    //             theta,
-    //         }
-    //     })
-    //     .collect::<Vec<_>>();
+    // println!("{:?}", acc);
 
     let mut line_params = vec![];
     for (r, row) in acc.iter().enumerate() {
         for (theta, &value) in row.iter().enumerate() {
             if value >= threshold {
-                let r = (r as u32 / n_theta) as f32 * r_step;
-                let theta = (theta as u32 % n_theta) as f32 * theta_step;
+                let r = r as f32 * r_step;
+                let theta = theta as f32 * theta_step;
 
                 line_params.push(Line { r, theta });
             }
@@ -69,7 +61,6 @@ pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
     for line in lines {
         let r = line.r;
         let theta = line.theta;
-        // when set exactly to 90 degrees it fails ._.
 
         // line points
         let x1 = theta.cos() * r;
@@ -96,7 +87,7 @@ pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
         ];
 
         for (x3, y3, x4, y4) in walls {
-            println!("{},{},{},{}", x3, y3, x4, y4);
+            // println!("{},{},{},{}", x3, y3, x4, y4);
             let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
             if denom != 0. {
                 intersections.push((
@@ -106,16 +97,8 @@ pub fn draw_lines(image: &GrayImage, lines: &[Line]) -> RgbImage {
             }
         }
 
-        // let intersections = intersections
-        //     .iter()
-        //     .fold(vec![], |mut acc, (x, y)| {
-        //         if !acc.contains(&(*x, *y)) {
-        //             acc.push((*x, *y));
-        //         }
-        //         acc
-        //     });
-        
-        let intersections = intersections.iter()
+        let intersections = intersections
+            .iter()
             .filter(|(x, y)| {
                 *x < image.width() as f32 && *x >= 0. && *y < image.height() as f32 && *y >= 0.
             })
