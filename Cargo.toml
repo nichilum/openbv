@@ -18,3 +18,8 @@ serde = { version = "1.0.202", optional = true }
 imageproc = "0.25.0"
 ab_glyph = "0.2.26"
 smallest-enclosing-circle = "0.2.0"
+
+arrow-array = "51.0.0"
+futures = "0.3.30"
+lancedb = "0.5.2"
+tokio = { version = "1.38.0", features = ["full"] }
