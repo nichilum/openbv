@@ -63,31 +63,33 @@ async fn main() -> anyhow::Result<()> {
             .map(|x| *x as f32 / (32 * 32) as f32)
             .collect::<Vec<_>>();
 
-        let r = average_color[0] as f32 / 255.;
-        let g = average_color[1] as f32 / 255.;
-        let b = average_color[2] as f32 / 255.;
+        let average_color = [average_color[0], average_color[1], average_color[2]];
 
-        let max = r.max(g).max(b);
-        let min = r.min(g).min(b);
+        // let r = average_color[0] as f32 / 255.;
+        // let g = average_color[1] as f32 / 255.;
+        // let b = average_color[2] as f32 / 255.;
 
-        let mut h = if max == min {
-            0.
-        } else if max == r {
-            60. * (0. + (g - b) / (max - min))
-        } else if max == g {
-            60. * (2. + (b - r) / (max - min))
-        } else if max == b {
-            60. * (4. + (r - g) / (max - min))
-        } else {
-            unreachable!()
-        };
+        // let max = r.max(g).max(b);
+        // let min = r.min(g).min(b);
 
-        if h < 0. {
-            h += 360.
-        }
-        let s = if max == min { 0. } else { (max - min) / (max) };
-        let v = max;
-        let average_color = [h, s, v];
+        // let mut h = if max == min {
+        //     0.
+        // } else if max == r {
+        //     60. * (0. + (g - b) / (max - min))
+        // } else if max == g {
+        //     60. * (2. + (b - r) / (max - min))
+        // } else if max == b {
+        //     60. * (4. + (r - g) / (max - min))
+        // } else {
+        //     unreachable!()
+        // };
+
+        // if h < 0. {
+        //     h += 360.
+        // }
+        // let s = if max == min { 0. } else { (max - min) / (max) };
+        // let v = max;
+        // let average_color = [h, s, v];
 
         println!("Reading image: {total}; {:?}", average_color);
 
