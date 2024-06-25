@@ -18,7 +18,7 @@
 
 use std::sync::Arc;
 
-use arrow_array::types::{Float32Type, Utf8Type};
+use arrow_array::types::{BinaryType, Float32Type, Utf8Type};
 use arrow_array::{FixedSizeListArray, GenericStringArray, Int32Array, RecordBatch, RecordBatchIterator};
 use futures::TryStreamExt;
 
@@ -66,9 +66,8 @@ async fn main() -> Result<()> {
                     ),
                 ),
                 Arc::new(
-                    FixedSizeListArray::from_iter_primitive::<Utf8Type, _, _>(
-                        (0..TOTAL).map(|i| Some(vec![Some(format!("image-{}.png", i)); 1])),
-                        1,
+                    GenericStringArray::<i32>::from_iter_values(
+                        (0..TOTAL).map(|i| format!("image-{}.png", i)),
                     ),
                 ),
             ],
@@ -85,11 +84,13 @@ async fn main() -> Result<()> {
         .await
         .unwrap();
 
-    table.create_index(&["vector_index"], Index::Auto).execute().await?;
+    table.create_index(&["vector"], Index::Auto).execute().await?;
 
     let paths = table.query().limit(1).nearest_to(&[1.0; DIM])?.execute().await?;
     let paths = paths.try_collect::<Vec<_>>().await?;
-    dbg!(paths);
+    let path = paths[0].column(2).as_any().downcast_ref::<GenericStringArray<i32>>().unwrap();
+    let path = path.value(0).to_string();
+    println!("Nearest image: {}", path);
 
     Ok(())
 }
