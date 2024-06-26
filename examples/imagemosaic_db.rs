@@ -4,12 +4,10 @@ use arrow_array::types::Float32Type;
 use arrow_array::{
     FixedSizeListArray, GenericStringArray, Int32Array, RecordBatch, RecordBatchIterator,
 };
-use futures::TryStreamExt;
-
+use image::GenericImageView;
 use lancedb::arrow::arrow_schema::{DataType, Field, Schema};
+use lancedb::connect;
 use lancedb::index::Index;
-use lancedb::query::{ExecutableQuery, QueryBase};
-use lancedb::{connect, Table as LanceDbTable};
 use tokio::fs::ReadDir;
 
 const DIM: usize = 3;
@@ -44,10 +42,8 @@ async fn main() -> anyhow::Result<()> {
     while let Some(entry) = entries.next_entry().await? {
         let path = entry.path();
         let image = image::open(&path).unwrap();
-        // whyyyy
-        // let image = image.resize(100, 100, image::imageops::FilterType::CatmullRom);
-        let image = image.to_rgb8();
-        let image = image.into_raw();
+        let (width, height) = image.dimensions();
+        let image = image.to_rgb8().into_raw();
 
         let average_color = image
             .chunks_exact(3)
@@ -60,36 +56,10 @@ async fn main() -> anyhow::Result<()> {
             })
             .iter()
             // 32 because dataset image size
-            .map(|x| *x as f32 / (32 * 32) as f32)
+            .map(|x| *x as f32 / (width * height) as f32)
             .collect::<Vec<_>>();
 
         let average_color = [average_color[0], average_color[1], average_color[2]];
-
-        // let r = average_color[0] as f32 / 255.;
-        // let g = average_color[1] as f32 / 255.;
-        // let b = average_color[2] as f32 / 255.;
-
-        // let max = r.max(g).max(b);
-        // let min = r.min(g).min(b);
-
-        // let mut h = if max == min {
-        //     0.
-        // } else if max == r {
-        //     60. * (0. + (g - b) / (max - min))
-        // } else if max == g {
-        //     60. * (2. + (b - r) / (max - min))
-        // } else if max == b {
-        //     60. * (4. + (r - g) / (max - min))
-        // } else {
-        //     unreachable!()
-        // };
-
-        // if h < 0. {
-        //     h += 360.
-        // }
-        // let s = if max == min { 0. } else { (max - min) / (max) };
-        // let v = max;
-        // let average_color = [h, s, v];
 
         println!("Reading image: {total}; {:?}", average_color);
 
