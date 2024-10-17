@@ -1,7 +1,7 @@
 import cv2
 
-image = cv2.imread('steganography.png', cv2.IMREAD_COLOR)
-image = image[:, :, 2]
+image = cv2.imread('export/steganography.png', cv2.IMREAD_COLOR)
+image = image[:, :, 0]
 
 bitImages = []
 for bit in range(8):
