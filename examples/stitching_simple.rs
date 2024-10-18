@@ -8,8 +8,8 @@ const STEP_SIZE: i32 = 100;
 const SCALE_FAC: u32 = 10;
 
 fn main() {
-    let image_one = open_gray("./images/stitch_one.jpg").unwrap();
-    let image_two = open_gray("./images/stitch_two.jpg").unwrap();
+    let image_one = open_gray("./images/stitch_two.jpg").unwrap();
+    let image_two = open_gray("./images/stitch_one.jpg").unwrap();
 
     let image_one_r = resize(
         &image_one,
@@ -69,7 +69,7 @@ fn main() {
             ); // debug
             i += 1;
 
-            if diff < min_diff {
+            if diff < min_diff && diff != 0 {
                 min_diff = diff;
                 min_x = x;
                 min_y = y;
@@ -89,9 +89,35 @@ fn main() {
         image_one.height() + y_position.abs() as u32,
     );
 
-    stitch_img.copy_from(&image_one, 0, 0).unwrap();
     stitch_img
-        .copy_from(&image_two, x_position as u32, 0)
+        .copy_from(
+            &image_two,
+            if x_position <= 0 {
+                x_position.abs() as u32
+            } else {
+                0
+            },
+            if y_position <= 0 {
+                y_position.abs() as u32
+            } else {
+                0
+            },
+        )
+        .unwrap();
+    stitch_img
+        .copy_from(
+            &image_one,
+            if x_position <= 0 {
+                0
+            } else {
+                x_position as u32
+            },
+            if y_position <= 0 {
+                0
+            } else {
+                y_position as u32
+            },
+        )
         .unwrap();
     stitch_img.save("export/stitchtest_1.png").unwrap();
 }
