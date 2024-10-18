@@ -10,4 +10,4 @@ for bit in range(8):
     bitImages.append(bitPlane)
 
 for i, bitImage in enumerate(bitImages):
-    cv2.imwrite(f'bit_{i}.png', bitImage)
+    cv2.imwrite(f'export/bit_{i}.png', bitImage)
