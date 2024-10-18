@@ -2,8 +2,8 @@ use image::Rgb;
 use openbv::{open_gray, open_rgb, pointops::binarize::BinarizeExt};
 
 fn main() {
-    let mut image = open_rgb("./images/messi.jpeg").unwrap();
-    let bin_img = open_gray("./images/laute.jpg").unwrap().binarize(128);
+    let mut image = open_rgb("./images/laute.jpg").unwrap();
+    let bin_img = open_gray("./images/juan-small.jpg").unwrap().binarize(128);
 
     image.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
         *pixel = Rgb([
