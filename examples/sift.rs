@@ -1,20 +1,17 @@
 use opencv::{
     calib3d,
-    core::{sort, DMatch, KeyPoint, KeyPointTraitConst, MatTraitConst, Point2f, VecN, Vector},
-    features2d::{
-        self, draw_keypoints, draw_matches, draw_matches_def, draw_matches_knn,
-        draw_matches_with_thickness_def, BFMatcher, FlannBasedMatcher,
-    },
-    highgui, imgcodecs,
-    prelude::{DescriptorMatcherTrait, DescriptorMatcherTraitConst, Feature2DTrait},
-    Result,
+    core::{DMatch, KeyPoint, KeyPointTraitConst, MatTraitConst, Point2f, Vector},
+    features2d::{self, draw_matches_def, FlannBasedMatcher},
+    highgui, imgcodecs::{self, IMREAD_GRAYSCALE},
+    prelude::{DescriptorMatcherTraitConst, Feature2DTrait}, xfeatures2d::SURF,
 };
 
 fn main() -> anyhow::Result<()> {
-    let base_image = imgcodecs::imread("images/Vildkatten/Vildkatten.jpg", 1)?;
-    let template = imgcodecs::imread("images/Vildkatten/VildkattenKarte01.png", 1)?;
+    let base_image = imgcodecs::imread("images/Vildkatten/Vildkatten.jpg", IMREAD_GRAYSCALE)?;
+    let template = imgcodecs::imread("images/Vildkatten/VildkattenKarte02.png", IMREAD_GRAYSCALE)?;
 
-    let mut sift = features2d::SIFT::create(0, 3, 0.04, 10., 15., false)?;
+    // let mut sift = features2d::SIFT::create(0, 3, 0.04, 10., 1.6, false)?;
+    let mut sift = SURF::create_def()?;
 
     let mut base_keypoints = Vector::<KeyPoint>::new();
     let mut base_descriptors = opencv::prelude::Mat::default();
@@ -79,8 +76,8 @@ fn main() -> anyhow::Result<()> {
         .collect::<Vec<_>>();
 
     let h = calib3d::find_homography(
-        &Vector::<Point2f>::from(src_points),
         &Vector::<Point2f>::from(dst_points),
+        &Vector::<Point2f>::from(src_points),
         &mut opencv::prelude::Mat::default(),
         calib3d::RANSAC,
         3.0,
