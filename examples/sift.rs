@@ -50,22 +50,14 @@ fn main() -> anyhow::Result<()> {
 
     let mut matches = Vector::new();
     matcher.train_match_def(&base_descriptors, &template_descriptors, &mut matches)?;
-    println!("{:?}", matches);
+    let mut good_matches = matches.as_slice().clone();
+    good_matches.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
 
 
-    // let mut out_image = imgcodecs::imread("images/laute.jpg", imgcodecs::IMREAD_COLOR)?;
-    // draw_matches_def(&base_image, &base_keypoints, &template, &template_keypoints, &matches.get(0)?, &mut out_image)?;
-    // // draw_keypoints(
-    // //     &base_image,
-    // //     &keypoints,
-    // //     &mut out_image,
-    // //     VecN::new(255., 0., 0., 1.),
-    // //     features2d::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS,
-    // // )
-    // // ?;
-    // highgui::named_window("hello opencv!", 0)?;
-    // highgui::imshow("hello opencv!", &out_image)?;
-    // highgui::wait_key(0)?;
+    draw_matches_def(&base_image, &base_keypoints, &template, &template_keypoints, &matches.into(), &mut out_image)?;
+    highgui::named_window("hello opencv!", 0)?;
+    highgui::imshow("hello opencv!", &out_image)?;
+    highgui::wait_key(0)?;
 
     Ok(())
 }
