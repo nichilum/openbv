@@ -1,16 +1,15 @@
 use opencv::{
-    core::{sort, KeyPoint, VecN, Vector},
-    features2d::{self, draw_keypoints, draw_matches, draw_matches_def, draw_matches_knn, BFMatcher},
+    core::{KeyPoint, Vector},
+    features2d::{self, draw_matches_def, BFMatcher},
     highgui, imgcodecs,
-    prelude::{DescriptorMatcherTrait, DescriptorMatcherTraitConst, Feature2DTrait},
-    Result,
+    prelude::{DescriptorMatcherTraitConst, Feature2DTrait},
 };
 
 fn main() -> anyhow::Result<()> {
     let base_image = imgcodecs::imread("images/Vildkatten/Vildkatten.jpg", 0)?;
     let template = imgcodecs::imread("images/Vildkatten/VildkattenKarte01.png", 0)?;
 
-    let mut sift = features2d::SIFT::create(0, 3, 0.04, 10., 1.6, false)?;
+    let mut sift = features2d::SIFT::create(0, 3, 0.04, 10., 15., false)?;
 
     let mut base_keypoints = Vector::<KeyPoint>::new();
     let mut base_descriptors = opencv::prelude::Mat::default();
@@ -44,19 +43,27 @@ fn main() -> anyhow::Result<()> {
     // )?;
     // println!("Matches: {}", matches.len());
 
-    let mut out_image = imgcodecs::imread("images/Vildkatten/Vildkatten.jpg", imgcodecs::IMREAD_COLOR)?;
+    let mut out_image =
+        imgcodecs::imread("images/Vildkatten/Vildkatten.jpg", imgcodecs::IMREAD_COLOR)?;
 
     let matcher = BFMatcher::new_def()?;
 
     let mut matches = Vector::new();
     matcher.train_match_def(&base_descriptors, &template_descriptors, &mut matches)?;
-    matches.as_mut_slice().sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
+    matches
+        .as_mut_slice()
+        .sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
 
     let good_matches = matches.iter().take(10).collect::<Vec<_>>();
 
-
-
-    draw_matches_def(&base_image, &base_keypoints, &template, &template_keypoints, &good_matches.into(), &mut out_image)?;
+    draw_matches_def(
+        &base_image,
+        &base_keypoints,
+        &template,
+        &template_keypoints,
+        &good_matches.into(),
+        &mut out_image,
+    )?;
     highgui::named_window("hello opencv!", 0)?;
     highgui::imshow("hello opencv!", &out_image)?;
     highgui::wait_key(0)?;
