@@ -1,8 +1,5 @@
 use opencv::{
-    core::{KeyPoint, Vector},
-    features2d::{self, draw_matches_def, BFMatcher},
-    highgui, imgcodecs,
-    prelude::{DescriptorMatcherTraitConst, Feature2DTrait},
+    calib3d, core::{KeyPoint, KeyPointTraitConst, MatTraitConst, Point2f, Vector}, features2d::{self, draw_matches_def, BFMatcher}, highgui, imgcodecs, imgproc, prelude::{DescriptorMatcherTraitConst, Feature2DTrait}
 };
 
 fn main() -> anyhow::Result<()> {
@@ -55,6 +52,39 @@ fn main() -> anyhow::Result<()> {
         .sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
 
     let good_matches = matches.iter().take(10).collect::<Vec<_>>();
+
+    let src_points = good_matches
+        .iter()
+        .map(|m| base_keypoints.get(m.query_idx as usize).unwrap().pt())
+        .collect::<Vec<_>>();
+    let dst_points = good_matches
+        .iter()
+        .map(|m| template_keypoints.get(m.train_idx as usize).unwrap().pt())
+        .collect::<Vec<_>>();
+
+    let h = calib3d::find_homography(
+        &Vector::<Point2f>::from(src_points),
+        &Vector::<Point2f>::from(dst_points),
+        &mut opencv::prelude::Mat::default(),
+        calib3d::RANSAC,
+        3.0,
+    )?;
+
+    
+    let template_corners = Vector::<Point2f>::from(vec![
+        Point2f::new(0.0, 0.0),
+        Point2f::new(template.cols() as f32, 0.0),
+        Point2f::new(template.cols() as f32, template.rows() as f32),
+        Point2f::new(0.0, template.rows() as f32),
+    ]);
+    let mut template_corners_transformed = Vector::<Point2f>::new();
+    opencv::core::perspective_transform(
+        &template_corners,
+        &mut template_corners_transformed,
+        &h,
+    )?;
+
+    println!("{:?}", template_corners_transformed);
 
     draw_matches_def(
         &base_image,
