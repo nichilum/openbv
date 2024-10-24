@@ -50,11 +50,13 @@ fn main() -> anyhow::Result<()> {
 
     let mut matches = Vector::new();
     matcher.train_match_def(&base_descriptors, &template_descriptors, &mut matches)?;
-    let mut good_matches = matches.as_slice().clone();
-    good_matches.sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
+    matches.as_mut_slice().sort_by(|a, b| a.distance.partial_cmp(&b.distance).unwrap());
+
+    let good_matches = matches.iter().take(10).collect::<Vec<_>>();
 
 
-    draw_matches_def(&base_image, &base_keypoints, &template, &template_keypoints, &matches.into(), &mut out_image)?;
+
+    draw_matches_def(&base_image, &base_keypoints, &template, &template_keypoints, &good_matches.into(), &mut out_image)?;
     highgui::named_window("hello opencv!", 0)?;
     highgui::imshow("hello opencv!", &out_image)?;
     highgui::wait_key(0)?;
