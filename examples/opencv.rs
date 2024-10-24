@@ -12,13 +12,18 @@ fn main() -> Result<()> {
     // highgui::wait_key(10000)?;
 
     let mut sift = features2d::SIFT::create(0, 3, 0.04, 10., 1.6, false).unwrap();
-    // also hier ist sowieso alles falsch
-    let a = sift.detect_and_compute(
+
+    let mut keypoints = Vector::<KeyPoint>::new();
+    let mut descriptors = Vector::<opencv::prelude::Mat>::new();
+    let _ = sift.detect_and_compute(
         &image,
         &opencv::prelude::Mat::default(),
-        &mut Vector::<KeyPoint>::new(),
-        &mut opencv::prelude::Mat::default(),
+        &mut keypoints,
+        &mut descriptors,
         false,
     );
+
+    println!("{:?}", keypoints);
+
     Ok(())
 }
